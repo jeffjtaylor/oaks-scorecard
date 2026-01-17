@@ -295,6 +295,36 @@
       border-top: 1px solid rgba(255,255,255,.10);
     }
 
+    /* Broadcast-style intensity colors (Summary) */
+.delta-eagle {        /* -2 or better */
+  color: #16a34a;     /* dark green */
+  font-weight: 950;
+}
+.delta-birdie {       /* -1 */
+  color: #22c55e;     /* green */
+  font-weight: 950;
+}
+.delta-par {          /* 0 */
+  color: rgba(233,238,245,.92); /* neutral */
+  font-weight: 900;
+}
+.delta-bogey {        /* +1 */
+  color: #ef4444;     /* red */
+  font-weight: 950;
+}
+.delta-double {       /* +2 or worse */
+  color: #b91c1c;     /* dark red */
+  font-weight: 950;
+}
+
+/* Broadcast-style To Par intensity */
+.tp-eagle { color:#16a34a; font-weight: 950; }  /* <= -2 */
+.tp-birdie{ color:#22c55e; font-weight: 950; }  /* -1 */
+.tp-even  { color:rgba(233,238,245,.92); font-weight: 950; } /* 0 (E) */
+.tp-bogey { color:#ef4444; font-weight: 950; }  /* +1 */
+.tp-double{ color:#b91c1c; font-weight: 950; }  /* >= +2 */
+
+
     /* Bottom segmented control */
     .segmented{
       position: fixed;
