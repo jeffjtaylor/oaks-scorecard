@@ -96,6 +96,11 @@
   gap: 10px;
 }
 
+    .totals-left {
+  align-items: center;
+}
+
+
 
     /* Ring */
     .ring{
@@ -537,9 +542,7 @@
             </div>
 
             <div>
-              <div id="roundTitle" style="font-weight:950;">Round in progress</div>
-<div id="roundMeta" class="small"></div>
-
+              
             </div>
           </div>
 
@@ -933,13 +936,6 @@ function render(){
   renderSummary();
   kickAnimations();
 }
-
-  const roundTitle = document.getElementById("roundTitle");
-const roundMeta  = document.getElementById("roundMeta");
-
-const meta = courseMeta(activeCourseId);
-roundTitle.textContent = "Round in progress";
-roundMeta.textContent = `${meta.yardsTotal.toLocaleString()} yds · Par ${meta.parTotal}`;
 
 function renderView(){
   const isCards = state.activeView !== "summary";
