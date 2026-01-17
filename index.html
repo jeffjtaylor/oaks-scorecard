@@ -88,6 +88,8 @@
       gap:12px;
       align-items:center;
     }
+    /* Pill Color */
+.pill select option { color: #0b0f14; }
 
     /* Ring */
     .ring{
@@ -489,8 +491,21 @@
       <div class="sub">Fitness-style · Swipe between holes</div>
     </div>
     <div class="row">
-      <div class="pill">The Oaks (Spanish Fork)</div>
-      <div class="pill">Blue Tees</div>
+      <label class="pill" style="display:flex; gap:8px; align-items:center;">
+  Course
+  <select id="courseSelect" style="
+    background: transparent;
+    color: var(--text);
+    border: 0;
+    font-weight: 950;
+    outline: none;
+    appearance: none;
+    -webkit-appearance: none;
+    padding-right: 14px;
+  "></select>
+</label>
+<div class="pill" id="teePill">Blue Tees</div>
+
     </div>
   </header>
 
@@ -588,30 +603,96 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
 
-const STORAGE_KEY = "oaks_blue_scorecard_v4"; // bump if you want to reset saved data
+const STORAGE_VERSION = "v1";
+function storageKey() {
+  return `scorecard_${activeCourseId}_${STORAGE_VERSION}`;
+}
+
 const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
-// Real hole data (Blue yards, Par, SI)
-const holes = [
-  { n: 1,  yards: 485, par: 5  },
-  { n: 2,  yards: 195, par: 3  },
-  { n: 3,  yards: 403, par: 4  },
-  { n: 4,  yards: 413, par: 4  },
-  { n: 5,  yards: 436, par: 4  },
-  { n: 6,  yards: 178, par: 3  },
-  { n: 7,  yards: 514, par: 5  },
-  { n: 8,  yards: 384, par: 4  },
-  { n: 9,  yards: 311, par: 4  },
-  { n: 10, yards: 521, par: 5  },
-  { n: 11, yards: 358, par: 4  },
-  { n: 12, yards: 123, par: 3  },
-  { n: 13, yards: 326, par: 4  },
-  { n: 14, yards: 309, par: 4  },
-  { n: 15, yards: 302, par: 4  },
-  { n: 16, yards: 442, par: 4  },
-  { n: 17, yards: 165, par: 3  },
-  { n: 18, yards: 493, par: 5  },
-];
+const COURSES = {
+  oaks_blue: {
+    name: "The Oaks (Spanish Fork) — Blue",
+    tee: "Blue Tees",
+    // Keep YOUR current Oaks data here (I copied from your posted code)
+    holes: [
+      { n: 1,  yards: 485, par: 5 },
+      { n: 2,  yards: 195, par: 3 },
+      { n: 3,  yards: 403, par: 4 },
+      { n: 4,  yards: 413, par: 4 },
+      { n: 5,  yards: 436, par: 4 },
+      { n: 6,  yards: 178, par: 3 },
+      { n: 7,  yards: 514, par: 5 },
+      { n: 8,  yards: 384, par: 4 },
+      { n: 9,  yards: 311, par: 4 },
+      { n: 10, yards: 521, par: 5 },
+      { n: 11, yards: 358, par: 4 },
+      { n: 12, yards: 123, par: 3 },
+      { n: 13, yards: 326, par: 4 },
+      { n: 14, yards: 309, par: 4 },
+      { n: 15, yards: 302, par: 4 },
+      { n: 16, yards: 442, par: 4 },
+      { n: 17, yards: 165, par: 3 },
+      { n: 18, yards: 493, par: 5 },
+    ],
+  },
+
+  timpanogos_blue: {
+    name: "Timpanogos Golf Club — Blue",
+    tee: "Blue Tees",
+    holes: [
+      { n: 1,  yards: 515, par: 5 },
+      { n: 2,  yards: 171, par: 3 },
+      { n: 3,  yards: 430, par: 4 },
+      { n: 4,  yards: 155, par: 3 },
+      { n: 5,  yards: 555, par: 5 },
+      { n: 6,  yards: 389, par: 4 },
+      { n: 7,  yards: 160, par: 3 },
+      { n: 8,  yards: 500, par: 5 },
+      { n: 9,  yards: 433, par: 4 },
+      { n: 10, yards: 501, par: 5 },
+      { n: 11, yards: 418, par: 4 },
+      { n: 12, yards: 185, par: 3 },
+      { n: 13, yards: 408, par: 4 },
+      { n: 14, yards: 311, par: 4 },
+      { n: 15, yards: 150, par: 3 },
+      { n: 16, yards: 426, par: 4 },
+      { n: 17, yards: 397, par: 4 },
+      { n: 18, yards: 575, par: 5 },
+    ],
+  },
+
+  hobble_blue: {
+    name: "Hobble Creek (Springville) — Blue",
+    tee: "Blue Tees",
+    // Blue yards + pars from GolfLink scorecard table :contentReference[oaicite:1]{index=1}
+    holes: [
+      { n: 1,  yards: 395, par: 4 },
+      { n: 2,  yards: 385, par: 4 },
+      { n: 3,  yards: 495, par: 5 },
+      { n: 4,  yards: 190, par: 3 },
+      { n: 5,  yards: 420, par: 4 },
+      { n: 6,  yards: 190, par: 3 },
+      { n: 7,  yards: 355, par: 4 },
+      { n: 8,  yards: 395, par: 4 },
+      { n: 9,  yards: 510, par: 5 },
+      { n: 10, yards: 160, par: 3 },
+      { n: 11, yards: 370, par: 4 },
+      { n: 12, yards: 375, par: 4 },
+      { n: 13, yards: 470, par: 5 },
+      { n: 14, yards: 150, par: 3 },
+      { n: 15, yards: 400, par: 4 },
+      { n: 16, yards: 160, par: 3 },
+      { n: 17, yards: 410, par: 4 },
+      { n: 18, yards: 485, par: 5 },
+    ],
+  },
+};
+
+// Active course
+let activeCourseId = localStorage.getItem("activeCourseId") || "oaks_blue";
+let holes = COURSES[activeCourseId].holes;
+
   
 // DOM
 const totalsPlayers = document.getElementById("totalsPlayers");
@@ -664,7 +745,8 @@ resetBtn.addEventListener("click", () => {
   saveState(); render(); haptic();
 });
 clearBtn.addEventListener("click", () => {
-  localStorage.removeItem(STORAGE_KEY);
+  localStorage.removeItem(storageKey());
+
   state = freshState();
   render(); haptic();
 });
@@ -763,6 +845,9 @@ function setScore(pIdx, hIdx, newVal){
   const from = (cur ?? 0);
   const to = (newVal ?? 0);
   const key = `${pIdx}-${hIdx}`;
+  const courseSelect = document.getElementById("courseSelect");
+  const teePill = document.getElementById("teePill");
+
   animMap.set(key, { from, to, start: performance.now(), dur: 220 });
 }
 
@@ -799,6 +884,35 @@ function sumClassForToPar(tp) {
   if (tp === 0) return "sum-even";
   return "";
 }
+
+  function populateCourseSelect() {
+  courseSelect.innerHTML = "";
+  Object.entries(COURSES).forEach(([id, c]) => {
+    const opt = document.createElement("option");
+    opt.value = id;
+    opt.textContent = c.name;
+    if (id === activeCourseId) opt.selected = true;
+    courseSelect.appendChild(opt);
+  });
+  teePill.textContent = COURSES[activeCourseId].tee || "Blue Tees";
+}
+
+courseSelect.addEventListener("change", () => {
+  // Save current course state
+  saveState();
+
+  // Switch
+  activeCourseId = courseSelect.value;
+  localStorage.setItem("activeCourseId", activeCourseId);
+
+  // Update holes + load that course’s saved round (or fresh)
+  holes = COURSES[activeCourseId].holes;
+  state = loadState() || freshState();
+
+  // Update UI + render
+  teePill.textContent = COURSES[activeCourseId].tee || "Blue Tees";
+  render();
+});
 
 
 // Render
@@ -1135,7 +1249,7 @@ function formatToPar(v){
 // Storage
 function loadState(){
   try{
-    const raw = localStorage.getItem(STORAGE_KEY);
+    const raw = localStorage.getItem(storageKey());
     if (!raw) return null;
     const parsed = JSON.parse(raw);
     if (!parsed.players || !parsed.scores) return null;
@@ -1146,9 +1260,11 @@ function loadState(){
     return null;
   }
 }
+
 function saveState(){
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+  localStorage.setItem(storageKey(), JSON.stringify(state));
 }
+
 
 // Utilities
 function haptic(){
@@ -1162,7 +1278,9 @@ function escapeHtml(str){
 function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
 function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
 
+populateCourseSelect();
 render();
+
 </script>
 </body>
 </html>
