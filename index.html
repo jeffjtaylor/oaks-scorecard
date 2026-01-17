@@ -538,6 +538,8 @@
                         transform="rotate(-90 27 27)"></circle>
               </svg>
               <div class="pct" id="ringPct">0%</div>
+              <div id="thruHoles" class="small"></div>
+
             </div>
 
             <div>
@@ -1062,16 +1064,21 @@ function renderHoles(){
 }
 
 function renderRing(){
-  let completed = 0;
-  for (let i=0; i<18; i++){
-    if (state.scores.some(p => p[i] !== null)) completed++;
-  }
+  const completed = holesCompletedCount();
   const pct = Math.round((completed/18)*100);
   ringPct.textContent = pct + "%";
 
   const filled = (pct/100) * RING_C;
   ringArc.setAttribute("stroke-dasharray", `${filled} ${RING_C}`);
+
+  const thruEl = document.getElementById("thruHoles");
+  if (thruEl) {
+    if (completed === 0) thruEl.textContent = "Thru 0 Holes";
+    else if (completed === 1) thruEl.textContent = "Thru 1 Hole";
+    else thruEl.textContent = `Thru ${completed} Holes`;
+  }
 }
+
 
 /** Summary (tap-to-edit) + marks */
 function renderSummary() {
@@ -1234,6 +1241,15 @@ function metric(label, value){
 }
 
 // Scoring helpers
+
+  function holesCompletedCount() {
+  let completed = 0;
+  for (let i = 0; i < 18; i++) {
+    if (state.scores.some(p => p[i] !== null)) completed++;
+  }
+  return completed;
+}
+
 function totalStrokes(pIdx){
   return state.scores[pIdx].reduce((sum, v) => sum + (v ?? 0), 0);
 }
