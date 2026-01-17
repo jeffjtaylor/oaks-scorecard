@@ -294,6 +294,11 @@
       border-top: 1px solid rgba(255,255,255,.10);
     }
 
+    /* Summary totals coloring (your requested scheme) */
+.sum-under { color: #ef4444; font-weight: 950; } /* under par = red */
+.sum-even  { color: #22c55e; font-weight: 950; } /* even par = green */
+
+
     /* Scorecard-style marks */
     .hole-mark {
       display: inline-grid;
@@ -644,28 +649,28 @@ if ("serviceWorker" in navigator) {
 const STORAGE_KEY = "oaks_blue_scorecard_v4"; // bump if you want to reset saved data
 const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
-// Holes (ordered 1..18)
+// Real hole data (Blue yards, Par, SI)
 const holes = [
-  { n: 1,  yards: 384, par: 4 },
-  { n: 2,  yards: 514, par: 5 },
-  { n: 3,  yards: 485, par: 5 },
-  { n: 4,  yards: 195, par: 3 },
-  { n: 5,  yards: 403, par: 4 },
-  { n: 6,  yards: 413, par: 4 },
-  { n: 7,  yards: 436, par: 4 },
-  { n: 8,  yards: 178, par: 3 },
-  { n: 9,  yards: 311, par: 4 },
-  { n: 10, yards: 521, par: 5 },
-  { n: 11, yards: 358, par: 4 },
-  { n: 12, yards: 123, par: 3 },
-  { n: 13, yards: 326, par: 4 },
-  { n: 14, yards: 309, par: 4 },
-  { n: 15, yards: 302, par: 4 },
-  { n: 16, yards: 442, par: 4 },
-  { n: 17, yards: 165, par: 3 },
-  { n: 18, yards: 493, par: 5 },
+  { n: 1,  yards: 485, par: 5  },
+  { n: 2,  yards: 195, par: 3  },
+  { n: 3,  yards: 403, par: 4  },
+  { n: 4,  yards: 413, par: 4  },
+  { n: 5,  yards: 436, par: 4  },
+  { n: 6,  yards: 178, par: 3  },
+  { n: 7,  yards: 514, par: 5  },
+  { n: 8,  yards: 384, par: 4  },
+  { n: 9,  yards: 311, par: 4  },
+  { n: 10, yards: 521, par: 5  },
+  { n: 11, yards: 358, par: 4  },
+  { n: 12, yards: 123, par: 3  },
+  { n: 13, yards: 326, par: 4  },
+  { n: 14, yards: 309, par: 4  },
+  { n: 15, yards: 302, par: 4  },
+  { n: 16, yards: 442, par: 4  },
+  { n: 17, yards: 165, par: 3  },
+  { n: 18, yards: 493, par: 5  },
 ];
-
+  
 // DOM
 const totalsPlayers = document.getElementById("totalsPlayers");
 const carousel = document.getElementById("carousel");
@@ -837,6 +842,22 @@ function markClassForScore(score, par) {
 
   return "";
 }
+
+  function toParRange(pIdx, start, end) {
+  let tp = 0;
+  for (let i = start; i <= end; i++) {
+    const s = state.scores[pIdx][i];
+    if (s !== null) tp += (s - holes[i].par);
+  }
+  return tp;
+}
+
+function sumClassForToPar(tp) {
+  if (tp < 0) return "sum-under";
+  if (tp === 0) return "sum-even";
+  return "";
+}
+
 
 // Render
 function render(){
@@ -1024,18 +1045,26 @@ function renderSummary() {
     }
 
     const out = sumRange(pIdx, 0, 8);
-    const inn = sumRange(pIdx, 9, 17);
-    const total = totalStrokes(pIdx);
+const inn = sumRange(pIdx, 9, 17);
+const total = totalStrokes(pIdx);
 
-    const rawToPar = totalToPar(pIdx);
-    const toParText = formatToPar(rawToPar);
+// To-par for each side + total
+const outTP = toParRange(pIdx, 0, 8);
+const inTP  = toParRange(pIdx, 9, 17);
+const totTP = totalToPar(pIdx);
 
-    html += `
-      <td>${out}</td>
-      <td>${inn}</td>
-      <td>${total}</td>
-      <td>${toParText}</td>
-    `;
+const outCls = sumClassForToPar(outTP);
+const inCls  = sumClassForToPar(inTP);
+const totCls = sumClassForToPar(totTP);
+
+html += `
+  <td class="${outCls}">${out}</td>
+  <td class="${inCls}">${inn}</td>
+  <td class="${totCls}">${total}</td>
+  <td class="${totCls}">${formatToPar(totTP)}</td>
+`;
+
+
 
     html += "</tr>";
   });
