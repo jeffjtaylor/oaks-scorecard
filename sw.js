@@ -9,6 +9,32 @@ const ASSETS = [
   // "./icon-512.png",
 ];
 
+
+for (let i = 0; i < 18; i++) {
+  const v = state.scores[pIdx][i];
+  const par = holes[i].par;
+
+  let extraClass = "";
+  if (v !== null) {
+    const d = v - par; // delta vs par
+
+    if (d <= -2) extraClass = " delta-eagle";
+    else if (d === -1) extraClass = " delta-birdie";
+    else if (d === 0) extraClass = " delta-par";
+    else if (d === 1) extraClass = " delta-bogey";
+    else extraClass = " delta-double"; // d >= 2
+  }
+
+  html += `<td class="tap-cell${extraClass}"
+              data-type="score"
+              data-player="${pIdx}"
+              data-hole="${i}">
+            ${v === null ? "—" : v}
+          </td>`;
+}
+
+
+
 self.addEventListener("install", (event) => {
   event.waitUntil(
     caches.open(CACHE).then((cache) => cache.addAll(ASSETS))
