@@ -1,32 +1,1033 @@
-const CACHE = "oaks-scorecard-v1";
-const ASSETS = [
-  "./",
-  "./index.html",
-  "./manifest.webmanifest"
-  // Add icons once you create them:
-  // "./icon-192.png",
-  // "./icon-512.png",
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#0b0f14" />
+
+  <!-- PWA -->
+  <link rel="manifest" href="manifest.webmanifest">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <meta name="apple-mobile-web-app-title" content="Oaks Scorecard">
+
+  <title>The Oaks – Blue Tee Scorecard</title>
+
+  <style>
+    :root{
+      --bg:#0b0f14;
+      --text:#e9eef5;
+      --muted: rgba(233,238,245,.70);
+      --stroke: rgba(255,255,255,.10);
+      --shadow: 0 12px 30px rgba(0,0,0,.35);
+      --radius: 22px;
+      --accent:#3b82f6;
+      --danger:#ef4444;
+    }
+    *{ box-sizing:border-box; }
+    body{
+      margin:0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display",
+                   "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+      background:
+        radial-gradient(1200px 800px at 20% -10%, rgba(59,130,246,.18), transparent 60%),
+        radial-gradient(900px 600px at 90% 10%, rgba(16,185,129,.10), transparent 55%),
+        var(--bg);
+      color:var(--text);
+      -webkit-font-smoothing: antialiased;
+      padding: env(safe-area-inset-top) 16px calc(env(safe-area-inset-bottom) + 92px);
+    }
+
+    header{
+      display:flex;
+      align-items:flex-end;
+      justify-content:space-between;
+      gap:12px;
+      margin: 8px 0 14px;
+    }
+    h1{
+      margin:0;
+      font-size: 30px;
+      letter-spacing: -0.02em;
+    }
+    .sub{
+      margin-top:6px;
+      font-size:13px;
+      color: var(--muted);
+    }
+    .pill{
+      font-size:12px;
+      padding:8px 10px;
+      background: rgba(255,255,255,.10);
+      border:1px solid var(--stroke);
+      border-radius:999px;
+      white-space:nowrap;
+    }
+    .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+
+    .card{
+      background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.06));
+      border:1px solid var(--stroke);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      overflow:hidden;
+    }
+    .card-inner{ padding:16px; }
+
+    .totals-head{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:12px;
+    }
+
+    .totals-left{
+      display:flex;
+      gap:12px;
+      align-items:center;
+    }
+
+    /* Ring */
+    .ring{
+      width: 54px;
+      height: 54px;
+      position: relative;
+      flex: 0 0 auto;
+    }
+    .ring svg{ display:block; }
+    .ring .pct{
+      position:absolute;
+      inset:0;
+      display:grid;
+      place-items:center;
+      font-size: 12px;
+      font-weight: 950;
+      color: rgba(233,238,245,.92);
+    }
+
+    .player-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+      padding:10px 0;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+    .player-row:first-of-type{ border-top:none; }
+
+    .player-name{
+      font-weight:900;
+      font-size:14px;
+      min-width: 86px;
+      max-width: 44%;
+      overflow:hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+    .editable{
+      display:inline-flex;
+      align-items:center;
+      gap:6px;
+      cursor:pointer;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .editable .pencil{ opacity:.65; font-size:12px; }
+
+    .chips{ display:flex; gap:8px; flex-wrap:wrap; justify-content:flex-end; }
+    .chip{
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--stroke);
+      border-radius: 14px;
+      padding:8px 10px;
+      min-width: 74px;
+    }
+    .chip .lbl{ font-size:10px; color: var(--muted); }
+    .chip .val{ font-size:12px; font-weight:950; }
+
+    .carousel{
+      margin-top: 14px;
+      display:flex;
+      gap:14px;
+      overflow-x:auto;
+      scroll-snap-type:x mandatory;
+      padding-bottom: 6px;
+      -webkit-overflow-scrolling: touch;
+    }
+    .carousel::-webkit-scrollbar{ display:none; }
+    .hole-card{
+      flex: 0 0 calc(100% - 24px);
+      scroll-snap-align:center;
+    }
+    @media (min-width: 520px){
+      .hole-card{ flex-basis: 360px; }
+    }
+
+    .hole-num{
+      font-size: 22px;
+      font-weight: 950;
+      margin:0;
+      letter-spacing: -0.02em;
+    }
+    .hole-sub{
+      margin-top:6px;
+      font-size:13px;
+      color:var(--muted);
+    }
+
+    .metric-row{ display:flex; gap:8px; flex-wrap:wrap; margin-top:12px; }
+    .metric{
+      background: rgba(255,255,255,.08);
+      border:1px solid var(--stroke);
+      border-radius:14px;
+      padding:10px 12px;
+    }
+    .metric .lbl{ font-size:10px; color: var(--muted); }
+    .metric .val{ font-size:12px; font-weight:950; margin-top:2px; }
+
+    .divider{ height:1px; background: rgba(255,255,255,.08); margin: 14px 0; }
+
+    .score-row{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+      padding: 10px 0;
+      border-top:1px solid rgba(255,255,255,.06);
+    }
+    .score-row:first-of-type{ border-top:none; }
+
+    .score-controls{
+      display:flex;
+      align-items:center;
+      gap:10px;
+    }
+    .btn{
+      width:40px;
+      height:40px;
+      border-radius: 14px;
+      border:1px solid var(--stroke);
+      background: rgba(255,255,255,.10);
+      color: var(--text);
+      font-size: 18px;
+      font-weight: 950;
+      display:grid;
+      place-items:center;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      box-shadow: 0 8px 16px rgba(0,0,0,.20);
+      cursor:pointer;
+    }
+    .btn:active{ transform: scale(.97); }
+    .btn.plus{
+      background: rgba(59,130,246,.22);
+      border-color: rgba(59,130,246,.35);
+    }
+    .btn.reset{
+      background: rgba(239,68,68,.18);
+      border-color: rgba(239,68,68,.30);
+    }
+
+    /* Animated score text */
+    .score{
+      min-width: 40px;
+      text-align:center;
+      font-size: 18px;
+      font-weight: 950;
+      transition: transform .18s ease, filter .18s ease;
+      will-change: transform;
+    }
+    .score.pop{
+      transform: scale(1.14);
+      filter: brightness(1.12);
+    }
+
+    .footer-actions{
+      margin-top: 12px;
+      display:flex;
+      gap:10px;
+      justify-content:space-between;
+      align-items:center;
+      flex-wrap:wrap;
+    }
+    .small{ font-size:12px; color: var(--muted); }
+
+    /* Summary table */
+    .table-wrap{ overflow:auto; -webkit-overflow-scrolling: touch; }
+    table{
+      width:100%;
+      border-collapse: collapse;
+      font-size: 13px;
+      min-width: 720px;
+    }
+    th, td{
+      padding:10px 10px;
+      border-bottom:1px solid rgba(255,255,255,.06);
+      text-align:center;
+      white-space: nowrap;
+    }
+    th{
+      color: var(--muted);
+      font-weight: 900;
+      position: sticky;
+      top: 0;
+      background: rgba(11,15,20,.92);
+      backdrop-filter: blur(10px);
+    }
+    td:first-child, th:first-child{
+      text-align:left;
+      position: sticky;
+      left: 0;
+      background: rgba(11,15,20,.92);
+      backdrop-filter: blur(10px);
+    }
+    .tap-cell{
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+      user-select:none;
+    }
+    .tap-cell:active{ transform: scale(.99); }
+    .totrow td{
+      font-weight: 950;
+      border-top: 1px solid rgba(255,255,255,.10);
+    }
+
+    /* Bottom segmented control */
+    .segmented{
+      position: fixed;
+      left: 16px;
+      right: 16px;
+      bottom: calc(env(safe-area-inset-bottom) + 12px);
+      background: rgba(255,255,255,.10);
+      border:1px solid var(--stroke);
+      border-radius: 18px;
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(14px);
+      -webkit-backdrop-filter: blur(14px);
+      display:flex;
+      padding: 6px;
+      gap: 6px;
+      z-index: 10;
+    }
+    .segmented button{
+      flex:1;
+      border: 0;
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 950;
+      color: var(--text);
+      background: transparent;
+      cursor:pointer;
+      -webkit-tap-highlight-color: transparent;
+    }
+    .segmented button.active{
+      background: rgba(59,130,246,.22);
+      border:1px solid rgba(59,130,246,.35);
+    }
+
+    /* Bottom sheet */
+    .backdrop{
+      position: fixed;
+      inset: 0;
+      background: rgba(0,0,0,.45);
+      display:none;
+      z-index: 50;
+    }
+    .backdrop.show{ display:block; }
+
+    .sheet{
+      position: fixed;
+      left: 0;
+      right: 0;
+      bottom: -420px;
+      margin: 0 auto;
+      max-width: 720px;
+      background: linear-gradient(180deg, rgba(255,255,255,.10), rgba(255,255,255,.06));
+      border: 1px solid rgba(255,255,255,.12);
+      border-radius: 22px 22px 0 0;
+      box-shadow: 0 -16px 40px rgba(0,0,0,.45);
+      backdrop-filter: blur(18px);
+      -webkit-backdrop-filter: blur(18px);
+      transition: transform .22s ease;
+      transform: translateY(0);
+      z-index: 60;
+      padding-bottom: env(safe-area-inset-bottom);
+    }
+    .sheet.show{ transform: translateY(-420px); }
+    @media (min-width: 520px){
+      .sheet{ max-width: 520px; }
+    }
+
+    .sheet-inner{
+      padding: 12px 16px 16px;
+    }
+    .grab{
+      width: 44px;
+      height: 5px;
+      border-radius: 999px;
+      background: rgba(255,255,255,.22);
+      margin: 8px auto 10px;
+    }
+    .sheet-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:10px;
+    }
+    .sheet-title{
+      font-weight: 950;
+      font-size: 16px;
+      margin:0;
+    }
+    .ghost{
+      border: 1px solid rgba(255,255,255,.14);
+      background: rgba(255,255,255,.06);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .primary{
+      border: 1px solid rgba(59,130,246,.35);
+      background: rgba(59,130,246,.22);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .danger{
+      border: 1px solid rgba(239,68,68,.30);
+      background: rgba(239,68,68,.18);
+      color: var(--text);
+      border-radius: 14px;
+      padding: 10px 12px;
+      font-weight: 950;
+      cursor:pointer;
+    }
+    .field{
+      margin-top: 12px;
+      display:flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    .label{
+      font-size: 12px;
+      color: var(--muted);
+      font-weight: 900;
+    }
+    input{
+      width: 100%;
+      background: rgba(255,255,255,.08);
+      color: var(--text);
+      border:1px solid rgba(255,255,255,.14);
+      border-radius: 16px;
+      padding: 12px 12px;
+      font-size: 16px;
+      outline:none;
+    }
+    .sheet-actions{
+      margin-top: 14px;
+      display:flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+    .hint{
+      margin-top: 8px;
+      font-size: 12px;
+      color: var(--muted);
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <div>
+      <h1>Scorecard</h1>
+      <div class="sub">Fitness-style · Swipe between holes</div>
+    </div>
+    <div class="row">
+      <div class="pill">The Oaks (Spanish Fork)</div>
+      <div class="pill">Blue Tees</div>
+    </div>
+  </header>
+
+  <!-- Cards view -->
+  <main id="viewCards">
+    <section class="card">
+      <div class="card-inner">
+        <div class="totals-head">
+          <div class="totals-left">
+            <!-- Ring -->
+            <div class="ring" aria-label="Round progress">
+              <svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true">
+                <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="6"></circle>
+                <circle id="ringArc" cx="27" cy="27" r="22" fill="none"
+                        stroke="rgba(59,130,246,.95)" stroke-width="6"
+                        stroke-linecap="round"
+                        stroke-dasharray="0 999"
+                        transform="rotate(-90 27 27)"></circle>
+              </svg>
+              <div class="pct" id="ringPct">0%</div>
+            </div>
+
+            <div>
+              <div style="font-weight:950;">Round in progress</div>
+              <div class="small">Blue: 6,358 yds · Par 72</div>
+            </div>
+          </div>
+
+          <div class="btn reset" id="resetBtn" title="Reset scores">↺</div>
+        </div>
+
+        <div id="totalsPlayers" style="margin-top:10px;"></div>
+
+        <div class="footer-actions">
+          <div class="small">Auto-saves + works offline once opened</div>
+          <div class="btn reset" id="clearBtn" title="Clear saved data">🗑</div>
+        </div>
+      </div>
+    </section>
+
+    <div class="carousel" id="carousel" aria-label="Holes"></div>
+  </main>
+
+  <!-- Summary view -->
+  <main id="viewSummary" style="display:none;">
+    <section class="card">
+      <div class="card-inner">
+        <div style="font-weight:950;font-size:16px;">Summary</div>
+        <div class="small" style="margin-top:4px;">Tap a score cell to edit</div>
+        <div class="divider"></div>
+
+        <div class="table-wrap">
+          <table id="summaryTable" aria-label="Summary table"></table>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <nav class="segmented" aria-label="View switcher">
+    <button id="tabCards" class="active">Cards</button>
+    <button id="tabSummary">Summary</button>
+  </nav>
+
+  <!-- Bottom Sheet -->
+  <div class="backdrop" id="backdrop"></div>
+  <div class="sheet" id="sheet" aria-hidden="true">
+    <div class="grab"></div>
+    <div class="sheet-inner">
+      <div class="sheet-head">
+        <p class="sheet-title" id="sheetTitle">Edit</p>
+        <button class="ghost" id="sheetClose">Close</button>
+      </div>
+
+      <div class="field">
+        <div class="label" id="sheetLabel">Label</div>
+        <input id="sheetInput" type="text" inputmode="text" autocomplete="off" />
+        <div class="hint" id="sheetHint"></div>
+      </div>
+
+      <div class="sheet-actions">
+        <button class="danger" id="sheetClear">Clear</button>
+        <button class="primary" id="sheetSave">Save</button>
+      </div>
+    </div>
+  </div>
+
+<script>
+/**
+ * The Oaks (Spanish Fork) — Blue tees
+ * Yardages from Blue column; Par and Stroke Index (SI) from published table. 
+ */
+
+// Register service worker (PWA offline)
+if ("serviceWorker" in navigator) {
+  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
+}
+
+const STORAGE_KEY = "oaks_blue_scorecard_v4";
+const defaultPlayers = ["Player 1", "Player 2"];
+
+// Real hole data (Blue yards, Par, SI)
+const holes = [
+  { n: 1,  yards: 384, par: 4, si: 7  },
+  { n: 2,  yards: 514, par: 5, si: 3  },
+  { n: 3,  yards: 485, par: 5, si: 9  },
+  { n: 4,  yards: 195, par: 3, si: 15 },
+  { n: 5,  yards: 403, par: 4, si: 11 },
+  { n: 6,  yards: 413, par: 4, si: 5  },
+  { n: 7,  yards: 436, par: 4, si: 1  },
+  { n: 8,  yards: 178, par: 3, si: 17 },
+  { n: 9,  yards: 311, par: 4, si: 13 },
+  { n: 10, yards: 521, par: 5, si: 6  },
+  { n: 11, yards: 358, par: 4, si: 8  },
+  { n: 12, yards: 123, par: 3, si: 18 },
+  { n: 13, yards: 326, par: 4, si: 14 },
+  { n: 14, yards: 309, par: 4, si: 12 },
+  { n: 15, yards: 302, par: 4, si: 10 },
+  { n: 16, yards: 442, par: 4, si: 2  },
+  { n: 17, yards: 165, par: 3, si: 16 },
+  { n: 18, yards: 493, par: 5, si: 4  },
 ];
 
-self.addEventListener("install", (event) => {
-  event.waitUntil(
-    caches.open(CACHE).then((cache) => cache.addAll(ASSETS))
-  );
-  self.skipWaiting();
+// DOM
+const totalsPlayers = document.getElementById("totalsPlayers");
+const carousel = document.getElementById("carousel");
+const resetBtn = document.getElementById("resetBtn");
+const clearBtn = document.getElementById("clearBtn");
+
+const viewCards = document.getElementById("viewCards");
+const viewSummary = document.getElementById("viewSummary");
+const tabCards = document.getElementById("tabCards");
+const tabSummary = document.getElementById("tabSummary");
+const summaryTable = document.getElementById("summaryTable");
+
+// Ring DOM
+const ringArc = document.getElementById("ringArc");
+const ringPct = document.getElementById("ringPct");
+const RING_R = 22;
+const RING_C = 2 * Math.PI * RING_R;
+
+// Sheet DOM
+const backdrop = document.getElementById("backdrop");
+const sheet = document.getElementById("sheet");
+const sheetTitle = document.getElementById("sheetTitle");
+const sheetLabel = document.getElementById("sheetLabel");
+const sheetHint = document.getElementById("sheetHint");
+const sheetInput = document.getElementById("sheetInput");
+const sheetClose = document.getElementById("sheetClose");
+const sheetSave = document.getElementById("sheetSave");
+const sheetClear = document.getElementById("sheetClear");
+
+// State
+let state = loadState() || freshState();
+function freshState(){
+  return {
+    players: defaultPlayers.slice(),
+    scores: defaultPlayers.map(() => Array(18).fill(null)),
+    activeView: "cards",
+  };
+}
+
+// Score animation tracking (for count-up)
+const animMap = new Map(); // key: "p-h" -> {from,to,start,dur}
+
+// Editor context
+let editor = null; // { type: "name"|"score", playerIndex, holeIndex? }
+
+// Events
+resetBtn.addEventListener("click", () => {
+  state.scores = state.players.map(() => Array(18).fill(null));
+  saveState(); render(); haptic();
+});
+clearBtn.addEventListener("click", () => {
+  localStorage.removeItem(STORAGE_KEY);
+  state = freshState();
+  render(); haptic();
+});
+tabCards.addEventListener("click", () => switchView("cards"));
+tabSummary.addEventListener("click", () => switchView("summary"));
+
+function switchView(view){
+  state.activeView = view;
+  saveState();
+  renderView();
+  haptic();
+}
+
+// Sheet events
+sheetClose.addEventListener("click", closeSheet);
+backdrop.addEventListener("click", closeSheet);
+
+sheetSave.addEventListener("click", () => {
+  if (!editor) return;
+  const val = sheetInput.value.trim();
+
+  if (editor.type === "name") {
+    if (!val) return;
+    state.players[editor.playerIndex] = val;
+  } else {
+    if (val === "") {
+      setScore(editor.playerIndex, editor.holeIndex, null);
+    } else {
+      const n = Number(val);
+      if (!Number.isFinite(n) || n < 0 || n > 30) return;
+      setScore(editor.playerIndex, editor.holeIndex, Math.floor(n));
+    }
+  }
+
+  saveState();
+  render();
+  closeSheet();
+  haptic();
 });
 
-self.addEventListener("activate", (event) => {
-  event.waitUntil(
-    caches.keys().then((keys) =>
-      Promise.all(keys.map((k) => (k === CACHE ? null : caches.delete(k))))
-    )
-  );
-  self.clients.claim();
+sheetClear.addEventListener("click", () => {
+  if (!editor) return;
+  if (editor.type === "name") {
+    sheetInput.value = "";
+    sheetInput.focus();
+    return;
+  }
+  sheetInput.value = "";
+  sheetInput.focus();
+  haptic();
 });
 
-self.addEventListener("fetch", (event) => {
-  const req = event.request;
-  event.respondWith(
-    caches.match(req).then((cached) => cached || fetch(req))
-  );
-});
+function openSheet(ctx){
+  editor = ctx;
+
+  if (ctx.type === "name") {
+    sheetTitle.textContent = "Edit Player Name";
+    sheetLabel.textContent = `Player ${ctx.playerIndex + 1}`;
+    sheetHint.textContent = "Short names look best on the cards.";
+    sheetInput.type = "text";
+    sheetInput.inputMode = "text";
+    sheetInput.value = state.players[ctx.playerIndex] || "";
+  } else {
+    const holeNo = holes[ctx.holeIndex].n;
+    sheetTitle.textContent = "Edit Score";
+    sheetLabel.textContent = `${state.players[ctx.playerIndex] || "Player"} · Hole ${holeNo}`;
+    sheetHint.textContent = "Enter strokes (0–30) or Clear to blank it out.";
+    sheetInput.type = "number";
+    sheetInput.inputMode = "numeric";
+    const cur = state.scores[ctx.playerIndex][ctx.holeIndex];
+    sheetInput.value = (cur === null ? "" : String(cur));
+  }
+
+  backdrop.classList.add("show");
+  sheet.classList.add("show");
+  sheet.setAttribute("aria-hidden", "false");
+
+  setTimeout(() => {
+    sheetInput.focus();
+    sheetInput.select();
+  }, 50);
+}
+
+function closeSheet(){
+  backdrop.classList.remove("show");
+  sheet.classList.remove("show");
+  sheet.setAttribute("aria-hidden", "true");
+  editor = null;
+}
+
+// Core: set score with animation bookkeeping
+function setScore(pIdx, hIdx, newVal){
+  const cur = state.scores[pIdx][hIdx];
+  state.scores[pIdx][hIdx] = newVal;
+
+  // For animation we treat null as 0 visually on cards
+  const from = (cur ?? 0);
+  const to = (newVal ?? 0);
+  const key = `${pIdx}-${hIdx}`;
+  animMap.set(key, { from, to, start: performance.now(), dur: 220 });
+}
+
+// Render
+function render(){
+  renderView();
+  renderTotals();
+  renderHoles();
+  renderRing();
+  renderSummary();
+  kickAnimations();
+}
+
+function renderView(){
+  const isCards = state.activeView !== "summary";
+  viewCards.style.display = isCards ? "" : "none";
+  viewSummary.style.display = isCards ? "none" : "";
+  tabCards.classList.toggle("active", isCards);
+  tabSummary.classList.toggle("active", !isCards);
+}
+
+function renderTotals(){
+  totalsPlayers.innerHTML = "";
+  state.players.forEach((name, pIdx) => {
+    const total = totalStrokes(pIdx);
+    const toPar = totalToPar(pIdx);
+    const out = sumRange(pIdx, 0, 8);
+    const inn = sumRange(pIdx, 9, 17);
+
+    const row = document.createElement("div");
+    row.className = "player-row";
+
+    const nameEl = document.createElement("div");
+    nameEl.className = "player-name editable";
+    nameEl.innerHTML = `<span>${escapeHtml(name)}</span><span class="pencil">✎</span>`;
+    nameEl.title = "Tap to edit name";
+    nameEl.addEventListener("click", () => openSheet({ type:"name", playerIndex: pIdx }));
+
+    const chips = document.createElement("div");
+    chips.className = "chips";
+    chips.appendChild(chip("Total", total));
+    chips.appendChild(chip("To Par", formatToPar(toPar)));
+    chips.appendChild(chip("OUT", out));
+    chips.appendChild(chip("IN", inn));
+
+    row.appendChild(nameEl);
+    row.appendChild(chips);
+    totalsPlayers.appendChild(row);
+  });
+}
+
+function renderHoles(){
+  carousel.innerHTML = "";
+  holes.forEach((h, hIdx) => {
+    const card = document.createElement("section");
+    card.className = "card hole-card";
+
+    const inner = document.createElement("div");
+    inner.className = "card-inner";
+    inner.innerHTML = `
+      <p class="hole-num">Hole ${h.n}</p>
+      <div class="hole-sub">Par ${h.par} · ${h.yards} yds · SI ${h.si}</div>
+
+      <div class="metric-row">
+        ${metric("Par", h.par)}
+        ${metric("Yards", h.yards)}
+        ${metric("SI", h.si)}
+      </div>
+
+      <div class="divider"></div>
+      <div id="scores-${hIdx}"></div>
+    `;
+
+    card.appendChild(inner);
+    carousel.appendChild(card);
+
+    const scoresWrap = inner.querySelector(`#scores-${hIdx}`);
+
+    state.players.forEach((name, pIdx) => {
+      const row = document.createElement("div");
+      row.className = "score-row";
+
+      const left = document.createElement("div");
+      left.className = "player-name editable";
+      left.innerHTML = `<span>${escapeHtml(name)}</span><span class="pencil">✎</span>`;
+      left.title = "Tap to edit name";
+      left.addEventListener("click", () => openSheet({ type:"name", playerIndex: pIdx }));
+
+      const controls = document.createElement("div");
+      controls.className = "score-controls";
+
+      const minus = document.createElement("div");
+      minus.className = "btn";
+      minus.textContent = "–";
+      minus.addEventListener("click", () => {
+        const cur = state.scores[pIdx][hIdx] ?? 0;
+        setScore(pIdx, hIdx, Math.max(0, cur - 1));
+        saveState(); render(); haptic();
+      });
+
+      const score = document.createElement("div");
+      score.className = "score";
+      score.dataset.key = `${pIdx}-${hIdx}`;
+      score.textContent = String(state.scores[pIdx][hIdx] ?? 0);
+
+      const plus = document.createElement("div");
+      plus.className = "btn plus";
+      plus.textContent = "+";
+      plus.addEventListener("click", () => {
+        const cur = state.scores[pIdx][hIdx] ?? 0;
+        setScore(pIdx, hIdx, cur + 1);
+        saveState(); render(); haptic();
+      });
+
+      controls.appendChild(minus);
+      controls.appendChild(score);
+      controls.appendChild(plus);
+
+      row.appendChild(left);
+      row.appendChild(controls);
+      scoresWrap.appendChild(row);
+    });
+  });
+}
+
+function renderRing(){
+  // Hole is "completed" if any player has a non-null score recorded for it
+  let completed = 0;
+  for (let i=0; i<18; i++){
+    if (state.scores.some(p => p[i] !== null)) completed++;
+  }
+  const pct = Math.round((completed/18)*100);
+  ringPct.textContent = pct + "%";
+
+  const filled = (pct/100) * RING_C;
+  ringArc.setAttribute("stroke-dasharray", `${filled} ${RING_C}`);
+}
+
+function renderSummary(){
+  const headers = ["Player", ...holes.map(h => String(h.n)), "OUT", "IN", "Total", "To Par"];
+
+  let html = "<thead><tr>";
+  for (const h of headers) html += `<th>${escapeHtml(h)}</th>`;
+  html += "</tr></thead><tbody>";
+
+  state.players.forEach((name, pIdx) => {
+    html += "<tr>";
+    html += `<td class="tap-cell" data-type="name" data-player="${pIdx}">
+               <span class="editable"><span>${escapeHtml(name)}</span> <span class="pencil">✎</span></span>
+             </td>`;
+
+    for (let i=0; i<18; i++){
+      const v = state.scores[pIdx][i];
+      html += `<td class="tap-cell" data-type="score" data-player="${pIdx}" data-hole="${i}">
+                ${v === null ? "—" : v}
+              </td>`;
+    }
+
+    const out = sumRange(pIdx, 0, 8);
+    const inn = sumRange(pIdx, 9, 17);
+    const total = totalStrokes(pIdx);
+    const toPar = formatToPar(totalToPar(pIdx));
+
+    html += `<td>${out}</td><td>${inn}</td><td>${total}</td><td>${toPar}</td>`;
+    html += "</tr>";
+  });
+
+  const parOut = holes.slice(0,9).reduce((s,h)=>s+h.par,0);
+  const parIn  = holes.slice(9,18).reduce((s,h)=>s+h.par,0);
+  const parTot = holes.reduce((s,h)=>s+h.par,0);
+
+  html += `<tr class="totrow">
+    <td>Par</td>
+    ${holes.map(h => `<td>${h.par}</td>`).join("")}
+    <td>${parOut}</td><td>${parIn}</td><td>${parTot}</td><td>E</td>
+  </tr>`;
+
+  html += "</tbody>";
+  summaryTable.innerHTML = html;
+
+  summaryTable.querySelectorAll(".tap-cell").forEach(td => {
+    td.addEventListener("click", () => {
+      const type = td.getAttribute("data-type");
+      const p = Number(td.getAttribute("data-player"));
+      if (type === "name") {
+        openSheet({ type:"name", playerIndex: p });
+      } else {
+        const h = Number(td.getAttribute("data-hole"));
+        openSheet({ type:"score", playerIndex: p, holeIndex: h });
+      }
+    });
+  });
+}
+
+// Animation loop (count-up + pop)
+let animRaf = null;
+function kickAnimations(){
+  if (animRaf) cancelAnimationFrame(animRaf);
+  if (animMap.size === 0) return;
+  animRaf = requestAnimationFrame(stepAnims);
+}
+
+function stepAnims(now){
+  const nodes = document.querySelectorAll(".score[data-key]");
+  const nodeByKey = new Map();
+  nodes.forEach(n => nodeByKey.set(n.dataset.key, n));
+
+  let still = 0;
+
+  for (const [key, a] of animMap.entries()){
+    const node = nodeByKey.get(key);
+    if (!node) { animMap.delete(key); continue; }
+
+    const t = clamp((now - a.start) / a.dur, 0, 1);
+    const eased = easeOutCubic(t);
+    const value = Math.round(a.from + (a.to - a.from) * eased);
+
+    node.textContent = String(value);
+    node.classList.add("pop");
+
+    if (t >= 1){
+      // end
+      setTimeout(() => node.classList.remove("pop"), 120);
+      animMap.delete(key);
+    } else {
+      still++;
+    }
+  }
+
+  if (still > 0){
+    animRaf = requestAnimationFrame(stepAnims);
+  } else {
+    animRaf = null;
+  }
+}
+
+// UI bits
+function chip(label, value){
+  const el = document.createElement("div");
+  el.className = "chip";
+  el.innerHTML = `<div class="lbl">${escapeHtml(label)}</div><div class="val">${escapeHtml(String(value))}</div>`;
+  return el;
+}
+function metric(label, value){
+  return `<div class="metric"><div class="lbl">${escapeHtml(label)}</div><div class="val">${escapeHtml(String(value))}</div></div>`;
+}
+
+// Scoring helpers
+function totalStrokes(pIdx){
+  return state.scores[pIdx].reduce((sum, v) => sum + (v ?? 0), 0);
+}
+function totalToPar(pIdx){
+  let tp = 0;
+  for (let i=0; i<18; i++){
+    const s = state.scores[pIdx][i];
+    if (s !== null) tp += (s - holes[i].par);
+  }
+  return tp;
+}
+function sumRange(pIdx, start, end){
+  let s = 0;
+  for (let i=start; i<=end; i++){
+    s += (state.scores[pIdx][i] ?? 0);
+  }
+  return s;
+}
+function formatToPar(v){
+  if (v === 0) return "E";
+  return v > 0 ? `+${v}` : `${v}`;
+}
+
+// Storage
+function loadState(){
+  try{
+    const raw = localStorage.getItem(STORAGE_KEY);
+    if (!raw) return null;
+    const parsed = JSON.parse(raw);
+    if (!parsed.players || !parsed.scores) return null;
+    if (!Array.isArray(parsed.players) || !Array.isArray(parsed.scores)) return null;
+    if (parsed.scores.length !== parsed.players.length) return null;
+    return parsed;
+  } catch {
+    return null;
+  }
+}
+function saveState(){
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+// Utilities
+function haptic(){
+  try{ if (navigator.vibrate) navigator.vibrate(10); } catch {}
+}
+function escapeHtml(str){
+  return String(str).replace(/[&<>"']/g, m => ({
+    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+  }[m]));
+}
+function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+render();
+</script>
+</body>
+</html>
+
