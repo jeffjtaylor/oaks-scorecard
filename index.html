@@ -92,6 +92,25 @@
     /* Pill Color */
 .pill select option { color: #0b0f14; }
 
+    /* FORCE ring + thru text onto one line */
+.totals-left.single-line {
+  display: flex;
+  flex-direction: row;
+  align-items: center;
+  gap: 12px;
+  white-space: nowrap;
+}
+
+/* Ensure text itself never wraps */
+.thru-text {
+  white-space: nowrap;
+  line-height: 1;
+}
+.totals-left {
+  align-items: flex-start;
+}
+
+
     /* Apple Like Look */
     header .row {
   gap: 10px;
@@ -532,7 +551,7 @@
     <section class="card">
       <div class="card-inner">
         <div class="totals-head">
-          <div class="totals-left">
+  <div class="totals-left single-line">
             <!-- Ring -->
             <div class="ring" aria-label="Round progress">
               <svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true">
@@ -544,12 +563,8 @@
                         transform="rotate(-90 27 27)"></circle>
               </svg>
               <div class="pct" id="ringPct">0%</div>
-              <div id="thruHoles" class="small"></div>
-</div>
-            <div>
-              
-            </div>
-          </div>
+              <div id="thruHoles" class="thru-text">Thru 0 Holes</div>
+  </div>
 
           <div class="btn reset" id="resetBtn" title="Reset scores">↺</div>
         </div>
