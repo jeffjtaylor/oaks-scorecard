@@ -3,6 +3,7 @@ const ASSETS = [
   "./",
   "./index.html",
   "./manifest.webmanifest"
+  "./sw.js"
   // Add icons once you create them:
   // "./icon-192.png",
   // "./icon-512.png",
