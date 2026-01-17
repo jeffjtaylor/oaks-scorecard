@@ -11,10 +11,8 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Oaks Scorecard">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  
 
   <title>The Oaks – Blue Tee Scorecard</title>
-  
 
   <style>
     :root{
@@ -296,36 +294,79 @@
       border-top: 1px solid rgba(255,255,255,.10);
     }
 
-    /* Broadcast-style intensity colors (Summary) */
-    .delta-eagle {        /* -2 or better */
-      color: #ef4444;     /* red */
-      font-weight: 950;
-    }
-    .delta-birdie {       /* -1 */
-      color: #ef4444;     /* red */
-      font-weight: 950;
-    }
-    .delta-par {          /* 0 */
-      color: rgba(233,238,245,.92); /* neutral */
-      font-weight: 900;
-    }
-    .delta-bogey {        /* +1 */
-      color: rgba(233,238,245,.92); /* neutral */
-      font-weight: 900;
-    }
-    .delta-double {       /* +2 or worse */
-      color: rgba(233,238,245,.92); /* neutral */
-      font-weight: 900;
+    /* Scorecard-style marks */
+    .hole-mark {
+      display: inline-grid;
+      place-items: center;
+      min-width: 28px;
+      height: 28px;
+      padding: 0 8px;
+      line-height: 1;
     }
 
-    /* Broadcast-style To Par intensity */
-    .tp-eagle { color:#ef4444; font-weight: 950; }  /* <= -2 */
-    .tp-birdie{ color:#ef4444; font-weight: 950; }  /* -1 */
-    .tp-even  { color:#A8E4A0; font-weight: 950; } /* 0 (E) */
-    .tp-bogey { color:rgba(233,238,245,.92); font-weight: 950; }  /* +1 */
-    .tp-double{ color:rgba(233,238,245,.92); font-weight: 950; }  /* >= +2 */
+    /* Singles */
+    .hole-mark.circle {
+      border: 2px solid rgba(233,238,245,.92);
+      border-radius: 999px;
+    }
+    .hole-mark.square {
+      border: 2px solid rgba(233,238,245,.92);
+      border-radius: 8px;
+    }
 
-    
+    /* Doubles (eagle+, double bogey+) */
+    .hole-mark.double {
+      border-width: 4px;
+    }
+
+    /* Bigger mark for Cards view score number */
+    .hole-mark.cards {
+      min-width: 36px;
+      height: 36px;
+      padding: 0 10px;
+      font-size: 18px;
+      font-weight: 950;
+    }
+
+    /* Legend */
+    .legend {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-top: 10px;
+      color: var(--muted);
+      font-size: 12px;
+    }
+    .legend-item{
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border: 1px solid rgba(255,255,255,.10);
+      background: rgba(255,255,255,.06);
+      border-radius: 999px;
+    }
+    .legend-swatch{
+      width: 18px;
+      height: 18px;
+      display: inline-block;
+      background: transparent;
+    }
+    .legend-swatch.circle{
+      border: 2px solid rgba(233,238,245,.92);
+      border-radius: 999px;
+    }
+    .legend-swatch.circle.double{
+      border-width: 4px;
+    }
+    .legend-swatch.square{
+      border: 2px solid rgba(233,238,245,.92);
+      border-radius: 5px;
+    }
+    .legend-swatch.square.double{
+      border-width: 4px;
+    }
+
     /* Bottom segmented control */
     .segmented{
       position: fixed;
@@ -533,6 +574,26 @@
       <div class="card-inner">
         <div style="font-weight:950;font-size:16px;">Summary</div>
         <div class="small" style="margin-top:4px;">Tap a score cell to edit</div>
+
+        <div class="legend" aria-label="Score legend">
+          <span class="legend-item">
+            <span class="legend-swatch circle"></span>
+            Birdie
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch circle double"></span>
+            Eagle+
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch square"></span>
+            Bogey
+          </span>
+          <span class="legend-item">
+            <span class="legend-swatch square double"></span>
+            Double+
+          </span>
+        </div>
+
         <div class="divider"></div>
 
         <div class="table-wrap">
@@ -573,7 +634,6 @@
 <script>
 /**
  * The Oaks (Spanish Fork) — Blue tees
- * Hole data (yards/par/SI) from published scorecard table.
  */
 
 // Register service worker (PWA offline)
@@ -581,19 +641,19 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
 
-const STORAGE_KEY = "oaks_blue_scorecard_v4"; // (bump if you want to reset saved data)
+const STORAGE_KEY = "oaks_blue_scorecard_v4"; // bump if you want to reset saved data
 const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
-// Real hole data (Blue yards, Par, SI)
+// Holes (ordered 1..18)
 const holes = [
-  { n: 1,  yards: 485, par: 5 },
-  { n: 2,  yards: 195, par: 3 },
-  { n: 3,  yards: 403, par: 4 },
-  { n: 4,  yards: 413, par: 4 },
-  { n: 5,  yards: 436, par: 4 },
-  { n: 6,  yards: 178, par: 3 },
-  { n: 7,  yards: 514, par: 5 },
-  { n: 8,  yards: 384, par: 4 },
+  { n: 1,  yards: 384, par: 4 },
+  { n: 2,  yards: 514, par: 5 },
+  { n: 3,  yards: 485, par: 5 },
+  { n: 4,  yards: 195, par: 3 },
+  { n: 5,  yards: 403, par: 4 },
+  { n: 6,  yards: 413, par: 4 },
+  { n: 7,  yards: 436, par: 4 },
+  { n: 8,  yards: 178, par: 3 },
   { n: 9,  yards: 311, par: 4 },
   { n: 10, yards: 521, par: 5 },
   { n: 11, yards: 358, par: 4 },
@@ -606,7 +666,6 @@ const holes = [
   { n: 18, yards: 493, par: 5 },
 ];
 
-  
 // DOM
 const totalsPlayers = document.getElementById("totalsPlayers");
 const carousel = document.getElementById("carousel");
@@ -760,21 +819,23 @@ function setScore(pIdx, hIdx, newVal){
   animMap.set(key, { from, to, start: performance.now(), dur: 220 });
 }
 
-// Broadcast intensity helpers (used by renderSummary)
-function deltaClassForHoleScore(score, par) {
-  const d = score - par; // delta vs par
-  if (d <= -2) return "delta-eagle";
-  if (d === -1) return "delta-birdie";
-  if (d === 0) return "delta-par";
-  if (d === 1) return "delta-bogey";
-  return "delta-double"; // >= +2
-}
-function tpClassForTotalToPar(rawToPar) {
-  if (rawToPar <= -2) return "tp-eagle";
-  if (rawToPar === -1) return "tp-birdie";
-  if (rawToPar === 0) return "tp-even";
-  if (rawToPar === 1) return "tp-bogey";
-  return "tp-double"; // >= +2
+/** Scorecard marks:
+ * - Birdie (-1): circle
+ * - Eagle+ (<= -2): double circle
+ * - Bogey (+1): square
+ * - Double+ (>= +2): double square
+ * - Par: no mark
+ */
+function markClassForScore(score, par) {
+  const d = score - par;
+
+  if (d <= -2) return "circle double";
+  if (d === -1) return "circle";
+
+  if (d === 1) return "square";
+  if (d >= 2) return "square double";
+
+  return "";
 }
 
 // Render
@@ -835,7 +896,7 @@ function renderHoles(){
     inner.className = "card-inner";
     inner.innerHTML = `
       <p class="hole-num">Hole ${h.n}</p>
-      <div class="hole-sub">Par ${h.par} · ${h.yards} yds · SI ${h.si}</div>
+      <div class="hole-sub">Par ${h.par} · ${h.yards} yds</div>
 
       <div class="metric-row">
         ${metric("Par", h.par)}
@@ -876,7 +937,21 @@ function renderHoles(){
       const score = document.createElement("div");
       score.className = "score";
       score.dataset.key = `${pIdx}-${hIdx}`;
-      score.textContent = String(state.scores[pIdx][hIdx] ?? 0);
+
+      const v = state.scores[pIdx][hIdx];
+      const par = holes[hIdx].par;
+      const display = (v ?? 0);
+
+      if (v !== null) {
+        const markClass = markClassForScore(v, par);
+        if (markClass) {
+          score.innerHTML = `<span class="hole-mark cards ${markClass}">${display}</span>`;
+        } else {
+          score.textContent = String(display);
+        }
+      } else {
+        score.textContent = String(display);
+      }
 
       const plus = document.createElement("div");
       plus.className = "btn plus";
@@ -910,20 +985,17 @@ function renderRing(){
   ringArc.setAttribute("stroke-dasharray", `${filled} ${RING_C}`);
 }
 
-/** ✅ TV-style broadcast intensity summary (with tap-to-edit) */
+/** Summary (tap-to-edit) + marks */
 function renderSummary() {
   const headers = ["Player", ...holes.map(h => String(h.n)), "OUT", "IN", "Total", "To Par"];
 
   let html = "<thead><tr>";
-  for (const h of headers) {
-    html += `<th>${escapeHtml(h)}</th>`;
-  }
+  for (const h of headers) html += `<th>${escapeHtml(h)}</th>`;
   html += "</tr></thead><tbody>";
 
   state.players.forEach((name, pIdx) => {
     html += "<tr>";
 
-    // Player name (tap to edit)
     html += `
       <td class="tap-cell" data-type="name" data-player="${pIdx}">
         <span class="editable">
@@ -932,22 +1004,21 @@ function renderSummary() {
       </td>
     `;
 
-    // Hole scores (tap to edit) + intensity coloring based on delta vs par
     for (let i = 0; i < 18; i++) {
       const v = state.scores[pIdx][i];
       const par = holes[i].par;
 
-      let extraClass = "";
-      if (v !== null) {
-        extraClass = " " + deltaClassForHoleScore(v, par);
-      }
+      const markClass = (v === null) ? "" : markClassForScore(v, par);
+      const cellContent = (v === null)
+        ? "—"
+        : `<span class="hole-mark ${markClass}">${v}</span>`;
 
       html += `
-        <td class="tap-cell${extraClass}"
+        <td class="tap-cell"
             data-type="score"
             data-player="${pIdx}"
             data-hole="${i}">
-          ${v === null ? "—" : v}
+          ${cellContent}
         </td>
       `;
     }
@@ -958,19 +1029,17 @@ function renderSummary() {
 
     const rawToPar = totalToPar(pIdx);
     const toParText = formatToPar(rawToPar);
-    const tpClass = tpClassForTotalToPar(rawToPar);
 
     html += `
       <td>${out}</td>
       <td>${inn}</td>
       <td>${total}</td>
-      <td class="${tpClass}">${toParText}</td>
+      <td>${toParText}</td>
     `;
 
     html += "</tr>";
   });
 
-  // Par row
   const parOut = holes.slice(0, 9).reduce((s, h) => s + h.par, 0);
   const parIn  = holes.slice(9, 18).reduce((s, h) => s + h.par, 0);
   const parTot = holes.reduce((s, h) => s + h.par, 0);
@@ -982,14 +1051,13 @@ function renderSummary() {
       <td>${parOut}</td>
       <td>${parIn}</td>
       <td>${parTot}</td>
-      <td class="tp-even">E</td>
+      <td>E</td>
     </tr>
   `;
 
   html += "</tbody>";
   summaryTable.innerHTML = html;
 
-  // Tap handlers
   summaryTable.querySelectorAll(".tap-cell").forEach(td => {
     td.addEventListener("click", () => {
       const type = td.getAttribute("data-type");
@@ -1006,7 +1074,7 @@ function renderSummary() {
   });
 }
 
-// Animation loop (count-up + pop)
+// Animation loop (count-up + pop) + marks
 let animRaf = null;
 function kickAnimations(){
   if (animRaf) cancelAnimationFrame(animRaf);
@@ -1029,7 +1097,18 @@ function stepAnims(now){
     const eased = easeOutCubic(t);
     const value = Math.round(a.from + (a.to - a.from) * eased);
 
-    node.textContent = String(value);
+    // Apply marks during animation
+    const [pStr, hStr] = node.dataset.key.split("-");
+    const hIdx = Number(hStr);
+    const par = holes[hIdx].par;
+
+    const markClass = markClassForScore(value, par);
+    if (markClass) {
+      node.innerHTML = `<span class="hole-mark cards ${markClass}">${value}</span>`;
+    } else {
+      node.textContent = String(value);
+    }
+
     node.classList.add("pop");
 
     if (t >= 1){
