@@ -320,7 +320,7 @@
     /* Broadcast-style To Par intensity */
     .tp-eagle { color:#ef4444; font-weight: 950; }  /* <= -2 */
     .tp-birdie{ color:#ef4444; font-weight: 950; }  /* -1 */
-    .tp-even  { color:#98FB98; font-weight: 950; } /* 0 (E) */
+    .tp-even  { color:#A8E4A0; font-weight: 950; } /* 0 (E) */
     .tp-bogey { color:rgba(233,238,245,.92); font-weight: 950; }  /* +1 */
     .tp-double{ color:rgba(233,238,245,.92); font-weight: 950; }  /* >= +2 */
 
@@ -585,24 +585,24 @@ const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
 // Real hole data (Blue yards, Par, SI)
 const holes = [
-  { n: 1,  yards: 485, par: 5, si: 9  },
-  { n: 2,  yards: 195, par: 3, si: 15  },
-  { n: 3,  yards: 403, par: 4, si: 11  },
-  { n: 4,  yards: 413, par: 4, si: 5 },
-  { n: 5,  yards: 436, par: 4, si: 1 },
-  { n: 6,  yards: 178, par: 3, si: 17  },
-  { n: 7,  yards: 514, par: 5, si: 3  },
-  { n: 8,  yards: 384, par: 4, si: 7 },
-  { n: 9,  yards: 311, par: 4, si: 13 },
-  { n: 10, yards: 521, par: 5, si: 6  },
-  { n: 11, yards: 358, par: 4, si: 8  },
-  { n: 12, yards: 123, par: 3, si: 18 },
-  { n: 13, yards: 326, par: 4, si: 14 },
-  { n: 14, yards: 309, par: 4, si: 12 },
-  { n: 15, yards: 302, par: 4, si: 10 },
-  { n: 16, yards: 442, par: 4, si: 2  },
-  { n: 17, yards: 165, par: 3, si: 16 },
-  { n: 18, yards: 493, par: 5, si: 4  },
+  { n: 1,  yards: 485, par: 5 },
+  { n: 2,  yards: 195, par: 3 },
+  { n: 3,  yards: 403, par: 4 },
+  { n: 4,  yards: 413, par: 4 },
+  { n: 5,  yards: 436, par: 4 },
+  { n: 6,  yards: 178, par: 3 },
+  { n: 7,  yards: 514, par: 5 },
+  { n: 8,  yards: 384, par: 4 },
+  { n: 9,  yards: 311, par: 4 },
+  { n: 10, yards: 521, par: 5 },
+  { n: 11, yards: 358, par: 4 },
+  { n: 12, yards: 123, par: 3 },
+  { n: 13, yards: 326, par: 4 },
+  { n: 14, yards: 309, par: 4 },
+  { n: 15, yards: 302, par: 4 },
+  { n: 16, yards: 442, par: 4 },
+  { n: 17, yards: 165, par: 3 },
+  { n: 18, yards: 493, par: 5 },
 ];
 
   
@@ -839,7 +839,6 @@ function renderHoles(){
       <div class="metric-row">
         ${metric("Par", h.par)}
         ${metric("Yards", h.yards)}
-        ${metric("SI", h.si)}
       </div>
 
       <div class="divider"></div>
