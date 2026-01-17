@@ -7,10 +7,10 @@
 
   <!-- PWA -->
   <link rel="manifest" href="manifest.webmanifest">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
   <meta name="apple-mobile-web-app-title" content="Oaks Scorecard">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
   <title>The Oaks – Blue Tee Scorecard</title>
 
@@ -83,7 +83,6 @@
       justify-content:space-between;
       gap:12px;
     }
-
     .totals-left{
       display:flex;
       gap:12px;
@@ -296,34 +295,33 @@
     }
 
     /* Broadcast-style intensity colors (Summary) */
-.delta-eagle {        /* -2 or better */
-  color: #16a34a;     /* dark green */
-  font-weight: 950;
-}
-.delta-birdie {       /* -1 */
-  color: #22c55e;     /* green */
-  font-weight: 950;
-}
-.delta-par {          /* 0 */
-  color: rgba(233,238,245,.92); /* neutral */
-  font-weight: 900;
-}
-.delta-bogey {        /* +1 */
-  color: #ef4444;     /* red */
-  font-weight: 950;
-}
-.delta-double {       /* +2 or worse */
-  color: #b91c1c;     /* dark red */
-  font-weight: 950;
-}
+    .delta-eagle {        /* -2 or better */
+      color: #16a34a;     /* dark green */
+      font-weight: 950;
+    }
+    .delta-birdie {       /* -1 */
+      color: #22c55e;     /* green */
+      font-weight: 950;
+    }
+    .delta-par {          /* 0 */
+      color: rgba(233,238,245,.92); /* neutral */
+      font-weight: 900;
+    }
+    .delta-bogey {        /* +1 */
+      color: #ef4444;     /* red */
+      font-weight: 950;
+    }
+    .delta-double {       /* +2 or worse */
+      color: #b91c1c;     /* dark red */
+      font-weight: 950;
+    }
 
-/* Broadcast-style To Par intensity */
-.tp-eagle { color:#16a34a; font-weight: 950; }  /* <= -2 */
-.tp-birdie{ color:#22c55e; font-weight: 950; }  /* -1 */
-.tp-even  { color:rgba(233,238,245,.92); font-weight: 950; } /* 0 (E) */
-.tp-bogey { color:#ef4444; font-weight: 950; }  /* +1 */
-.tp-double{ color:#b91c1c; font-weight: 950; }  /* >= +2 */
-
+    /* Broadcast-style To Par intensity */
+    .tp-eagle { color:#16a34a; font-weight: 950; }  /* <= -2 */
+    .tp-birdie{ color:#22c55e; font-weight: 950; }  /* -1 */
+    .tp-even  { color:rgba(233,238,245,.92); font-weight: 950; } /* 0 (E) */
+    .tp-bogey { color:#ef4444; font-weight: 950; }  /* +1 */
+    .tp-double{ color:#b91c1c; font-weight: 950; }  /* >= +2 */
 
     /* Bottom segmented control */
     .segmented{
@@ -572,7 +570,7 @@
 <script>
 /**
  * The Oaks (Spanish Fork) — Blue tees
- * Yardages from Blue column; Par and Stroke Index (SI) from published table. 
+ * Hole data (yards/par/SI) from published scorecard table.
  */
 
 // Register service worker (PWA offline)
@@ -580,10 +578,9 @@ if ("serviceWorker" in navigator) {
   window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
 }
 
-const STORAGE_KEY = "oaks_blue_scorecard_v4";
+const STORAGE_KEY = "oaks_blue_scorecard_v4"; // (bump if you want to reset saved data)
 const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
-  
 // Real hole data (Blue yards, Par, SI)
 const holes = [
   { n: 1,  yards: 485, par: 5, si: 9  },
@@ -606,6 +603,7 @@ const holes = [
   { n: 18, yards: 493, par: 5, si: 4  },
 ];
 
+  
 // DOM
 const totalsPlayers = document.getElementById("totalsPlayers");
 const carousel = document.getElementById("carousel");
@@ -753,11 +751,27 @@ function setScore(pIdx, hIdx, newVal){
   const cur = state.scores[pIdx][hIdx];
   state.scores[pIdx][hIdx] = newVal;
 
-  // For animation we treat null as 0 visually on cards
   const from = (cur ?? 0);
   const to = (newVal ?? 0);
   const key = `${pIdx}-${hIdx}`;
   animMap.set(key, { from, to, start: performance.now(), dur: 220 });
+}
+
+// Broadcast intensity helpers (used by renderSummary)
+function deltaClassForHoleScore(score, par) {
+  const d = score - par; // delta vs par
+  if (d <= -2) return "delta-eagle";
+  if (d === -1) return "delta-birdie";
+  if (d === 0) return "delta-par";
+  if (d === 1) return "delta-bogey";
+  return "delta-double"; // >= +2
+}
+function tpClassForTotalToPar(rawToPar) {
+  if (rawToPar <= -2) return "tp-eagle";
+  if (rawToPar === -1) return "tp-birdie";
+  if (rawToPar === 0) return "tp-even";
+  if (rawToPar === 1) return "tp-bogey";
+  return "tp-double"; // >= +2
 }
 
 // Render
@@ -883,7 +897,6 @@ function renderHoles(){
 }
 
 function renderRing(){
-  // Hole is "completed" if any player has a non-null score recorded for it
   let completed = 0;
   for (let i=0; i<18; i++){
     if (state.scores.some(p => p[i] !== null)) completed++;
@@ -895,58 +908,98 @@ function renderRing(){
   ringArc.setAttribute("stroke-dasharray", `${filled} ${RING_C}`);
 }
 
-function renderSummary(){
+/** ✅ TV-style broadcast intensity summary (with tap-to-edit) */
+function renderSummary() {
   const headers = ["Player", ...holes.map(h => String(h.n)), "OUT", "IN", "Total", "To Par"];
 
   let html = "<thead><tr>";
-  for (const h of headers) html += `<th>${escapeHtml(h)}</th>`;
+  for (const h of headers) {
+    html += `<th>${escapeHtml(h)}</th>`;
+  }
   html += "</tr></thead><tbody>";
 
   state.players.forEach((name, pIdx) => {
     html += "<tr>";
-    html += `<td class="tap-cell" data-type="name" data-player="${pIdx}">
-               <span class="editable"><span>${escapeHtml(name)}</span> <span class="pencil">✎</span></span>
-             </td>`;
 
-    for (let i=0; i<18; i++){
+    // Player name (tap to edit)
+    html += `
+      <td class="tap-cell" data-type="name" data-player="${pIdx}">
+        <span class="editable">
+          <span>${escapeHtml(name)}</span> <span class="pencil">✎</span>
+        </span>
+      </td>
+    `;
+
+    // Hole scores (tap to edit) + intensity coloring based on delta vs par
+    for (let i = 0; i < 18; i++) {
       const v = state.scores[pIdx][i];
-      html += `<td class="tap-cell" data-type="score" data-player="${pIdx}" data-hole="${i}">
-                ${v === null ? "—" : v}
-              </td>`;
+      const par = holes[i].par;
+
+      let extraClass = "";
+      if (v !== null) {
+        extraClass = " " + deltaClassForHoleScore(v, par);
+      }
+
+      html += `
+        <td class="tap-cell${extraClass}"
+            data-type="score"
+            data-player="${pIdx}"
+            data-hole="${i}">
+          ${v === null ? "—" : v}
+        </td>
+      `;
     }
 
     const out = sumRange(pIdx, 0, 8);
     const inn = sumRange(pIdx, 9, 17);
     const total = totalStrokes(pIdx);
-    const toPar = formatToPar(totalToPar(pIdx));
 
-    html += `<td>${out}</td><td>${inn}</td><td>${total}</td><td>${toPar}</td>`;
+    const rawToPar = totalToPar(pIdx);
+    const toParText = formatToPar(rawToPar);
+    const tpClass = tpClassForTotalToPar(rawToPar);
+
+    html += `
+      <td>${out}</td>
+      <td>${inn}</td>
+      <td>${total}</td>
+      <td class="${tpClass}">${toParText}</td>
+    `;
+
     html += "</tr>";
   });
 
-  const parOut = holes.slice(0,9).reduce((s,h)=>s+h.par,0);
-  const parIn  = holes.slice(9,18).reduce((s,h)=>s+h.par,0);
-  const parTot = holes.reduce((s,h)=>s+h.par,0);
+  // Par row
+  const parOut = holes.slice(0, 9).reduce((s, h) => s + h.par, 0);
+  const parIn  = holes.slice(9, 18).reduce((s, h) => s + h.par, 0);
+  const parTot = holes.reduce((s, h) => s + h.par, 0);
 
-  html += `<tr class="totrow">
-    <td>Par</td>
-    ${holes.map(h => `<td>${h.par}</td>`).join("")}
-    <td>${parOut}</td><td>${parIn}</td><td>${parTot}</td><td>E</td>
-  </tr>`;
+  html += `
+    <tr class="totrow">
+      <td>Par</td>
+      ${holes.map(h => `<td>${h.par}</td>`).join("")}
+      <td>${parOut}</td>
+      <td>${parIn}</td>
+      <td>${parTot}</td>
+      <td class="tp-even">E</td>
+    </tr>
+  `;
 
   html += "</tbody>";
   summaryTable.innerHTML = html;
 
+  // Tap handlers
   summaryTable.querySelectorAll(".tap-cell").forEach(td => {
     td.addEventListener("click", () => {
       const type = td.getAttribute("data-type");
       const p = Number(td.getAttribute("data-player"));
+
       if (type === "name") {
-        openSheet({ type:"name", playerIndex: p });
-      } else {
-        const h = Number(td.getAttribute("data-hole"));
-        openSheet({ type:"score", playerIndex: p, holeIndex: h });
+        openSheet({ type: "name", playerIndex: p });
+        return;
       }
+
+      const h = Number(td.getAttribute("data-hole"));
+      openSheet({ type: "score", playerIndex: p, holeIndex: h });
     });
   });
 }
@@ -978,7 +1031,6 @@ function stepAnims(now){
     node.classList.add("pop");
 
     if (t >= 1){
-      // end
       setTimeout(() => node.classList.remove("pop"), 120);
       animMap.delete(key);
     } else {
@@ -1062,4 +1114,3 @@ render();
 </script>
 </body>
 </html>
-
