@@ -91,6 +91,12 @@
     /* Pill Color */
 .pill select option { color: #0b0f14; }
 
+    /* Apple Like Look */
+    header .row {
+  gap: 10px;
+}
+
+
     /* Ring */
     .ring{
       width: 54px;
@@ -486,28 +492,31 @@
 
 <body>
   <header>
-    <div>
-      <h1>Scorecard</h1>
-      <div class="sub">Fitness-style · Swipe between holes</div>
-    </div>
-    <div class="row">
-      <label class="pill" style="display:flex; gap:8px; align-items:center;">
-  Course
-  <select id="courseSelect" style="
-    background: transparent;
-    color: var(--text);
-    border: 0;
-    font-weight: 950;
-    outline: none;
-    appearance: none;
-    -webkit-appearance: none;
-    padding-right: 14px;
-  "></select>
-</label>
-<div class="pill" id="teePill">Blue Tees</div>
+  <div>
+    <h1>Scorecard</h1>
+    <div class="sub">Fitness-style · Swipe between holes</div>
 
+    <!-- Course selector moved below title -->
+    <div class="row" style="margin-top:10px;">
+      <label class="pill" style="display:flex; gap:8px; align-items:center;">
+        Course
+        <select id="courseSelect" style="
+          background: transparent;
+          color: var(--text);
+          border: 0;
+          font-weight: 950;
+          outline: none;
+          appearance: none;
+          -webkit-appearance: none;
+          padding-right: 14px;
+        "></select>
+      </label>
+
+      <div class="pill" id="teePill">Blue Tees</div>
     </div>
-  </header>
+  </div>
+</header>
+
 
   <!-- Cards view -->
   <main id="viewCards">
