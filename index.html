@@ -491,13 +491,14 @@
 </head>
 
 <body>
-  <header>
+  
+ <header>
   <div>
     <h1>Scorecard</h1>
     <div class="sub">Fitness-style · Swipe between holes</div>
 
     <div class="row" style="margin-top:10px;">
-      <label class="pill" style="display:flex; gap:8px; align-items:center;">
+      <label class="pill" for="courseSelect" style="display:flex; gap:8px; align-items:center;">
         Course
         <select id="courseSelect" style="
           background: transparent;
@@ -536,8 +537,9 @@
             </div>
 
             <div>
-              <div style="font-weight:950;">Round in progress</div>
-              <div class="small">Blue: 6,358 yds · Par 72</div>
+              <div id="roundTitle" style="font-weight:950;">Round in progress</div>
+<div id="roundMeta" class="small"></div>
+
             </div>
           </div>
 
@@ -932,6 +934,13 @@ function render(){
   kickAnimations();
 }
 
+  const roundTitle = document.getElementById("roundTitle");
+const roundMeta  = document.getElementById("roundMeta");
+
+const meta = courseMeta(activeCourseId);
+roundTitle.textContent = "Round in progress";
+roundMeta.textContent = `${meta.yardsTotal.toLocaleString()} yds · Par ${meta.parTotal}`;
+
 function renderView(){
   const isCards = state.activeView !== "summary";
   viewCards.style.display = isCards ? "" : "none";
@@ -1252,6 +1261,13 @@ function formatToPar(v){
   if (v === 0) return "E";
   return v > 0 ? `+${v}` : `${v}`;
 }
+  function courseMeta(courseId){
+  const c = COURSES[courseId];
+  const parTotal = c.holes.reduce((s,h) => s + h.par, 0);
+  const yardsTotal = c.holes.reduce((s,h) => s + h.yards, 0);
+  return { name: c.name, parTotal, yardsTotal };
+}
+
 
 // Storage
 function loadState(){
