@@ -654,47 +654,38 @@ function holesCompletedCount() {
 }
 
 function buildScorecardText() {
-  const courseName = (typeof COURSES !== "undefined" && COURSES[activeCourseId])
-    ? COURSES[activeCourseId].name
-    : "Scorecard";
+  const courseName =
+    (typeof COURSES !== "undefined" && COURSES[activeCourseId])
+      ? COURSES[activeCourseId].name
+      : "Scorecard";
 
   const thru = holesCompletedCount();
-  const parOut = holes.slice(0, 9).reduce((s,h) => s + h.par, 0);
-  const parIn  = holes.slice(9, 18).reduce((s,h) => s + h.par, 0);
-  const parTot = holes.reduce((s,h) => s + h.par, 0);
 
   const lines = [];
-  lines.push(`${courseName}`);
+  lines.push(courseName);
   lines.push(`Thru ${thru} ${thru === 1 ? "Hole" : "Holes"}`);
   lines.push("");
 
-  // Header line for holes
-  lines.push(`Holes:  1  2  3  4  5  6  7  8  9 | OUT || 10 11 12 13 14 15 16 17 18 | IN  | TOT | ToPar`);
-  lines.push(`Par:   ${holes.slice(0,9).map(h=>String(h.par).padStart(2," ")).join(" ")} | ${String(parOut).padStart(3," ")} || ${holes.slice(9).map(h=>String(h.par).padStart(2," ")).join(" ")} | ${String(parIn).padStart(3," ")} | ${String(parTot).padStart(3," ")} |   E`);
+  // Only include players who have at least 1 entered score (not null)
+  const activePlayers = state.players
+    .map((name, pIdx) => ({ name, pIdx }))
+    .filter(({ pIdx }) => state.scores[pIdx].some(v => v !== null));
 
-  // Player rows
-  state.players.forEach((name, pIdx) => {
-    const frontScores = state.scores[pIdx].slice(0,9).map(v => (v === null ? "—" : String(v)).padStart(2," "));
-    const backScores  = state.scores[pIdx].slice(9).map(v => (v === null ? "—" : String(v)).padStart(2," "));
+  if (activePlayers.length === 0) {
+    lines.push("No scores entered yet.");
+    return lines.join("\n");
+  }
 
-    const out = sumRange(pIdx, 0, 8);
-    const inn = sumRange(pIdx, 9, 17);
+  activePlayers.forEach(({ name, pIdx }) => {
+    const playerName = String(name || `Player ${pIdx + 1}`).trim();
     const total = totalStrokes(pIdx);
     const tp = totalToPar(pIdx);
-
-    const safeName = String(name).trim() || `Player ${pIdx+1}`;
-    const nm = safeName.length > 10 ? safeName.slice(0,10) : safeName;
-    const nameCol = nm.padEnd(10, " ");
-
-    lines.push(
-      `${nameCol} ${frontScores.join(" ")} | ${String(out).padStart(3," ")} || ${backScores.join(" ")} | ${String(inn).padStart(3," ")} | ${String(total).padStart(3," ")} | ${formatToPar(tp).padStart(4," ")}`
-    );
+    lines.push(`${playerName} ${total} (${formatToPar(tp)})`);
   });
 
-  lines.push("");
-  lines.push("○ Birdie  ◎ Eagle+  □ Bogey  ▣ Double+"); // optional; remove if you don't want
   return lines.join("\n");
 }
+
 
 async function copyTextToClipboard(text) {
   // Modern clipboard
