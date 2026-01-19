@@ -12,7 +12,7 @@
   <meta name="apple-mobile-web-app-title" content="Oaks Scorecard">
   <link rel="apple-touch-icon" href="apple-touch-icon.png">
 
-  <title>The Oaks – Blue Tee Scorecard</title>
+  <title>Golf Scorecard</title>
 
   <style>
     :root{
@@ -51,11 +51,7 @@
       font-size: 30px;
       letter-spacing: -0.02em;
     }
-    .sub{
-      margin-top:6px;
-      font-size:13px;
-      color: var(--muted);
-    }
+
     .pill{
       font-size:12px;
       padding:8px 10px;
@@ -64,7 +60,10 @@
       border-radius:999px;
       white-space:nowrap;
     }
-    .row{ display:flex; gap:12px; align-items:center; flex-wrap:wrap; }
+    .row{ display:flex; gap:10px; align-items:center; flex-wrap:wrap; }
+
+    /* Pill select option text color (for iOS) */
+    .pill select option { color: #0b0f14; }
 
     .card{
       background: linear-gradient(180deg, rgba(255,255,255,.11), rgba(255,255,255,.06));
@@ -77,51 +76,18 @@
     }
     .card-inner{ padding:16px; }
 
-   .totals-head{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  gap:12px;
-}
+    .totals-head{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:12px;
+    }
 
-
-    /* Pill Color */
-.pill select option { color: #0b0f14; }
-
-    /* FORCE ring + thru text onto one line */
-.totals-left.single-line {
-  display: flex;
-  flex-direction: row;
-  align-items: center;
-  gap: 12px;
-  white-space: nowrap;
-}
-
-/* Ensure text itself never wraps */
-.thru-text {
-  white-space: nowrap;
-  line-height: 1;
-}
-.totals-left {
-  align-items: flex-start;
-}
-
-
-    /* Apple Like Look */
-    header .row {
-  gap: 10px;
-}
-
-    #thruHoles {
-  font-weight: 700;
-}
-
-
-    .totals-left {
-  align-items: center;
-}
-
-
+    /* Ring + Thru on one line */
+    .totals-left{ display:flex; align-items:center; gap:12px; }
+    .totals-left.single-line{ white-space: nowrap; }
+    .thru-text{ white-space: nowrap; line-height: 1; }
+    #thruHoles{ font-weight: 700; }
 
     /* Ring */
     .ring{
@@ -328,10 +294,9 @@
       border-top: 1px solid rgba(255,255,255,.10);
     }
 
-    /* Summary totals coloring (your requested scheme) */
-.sum-under { color: #ef4444; font-weight: 950; } /* under par = red */
-.sum-even  { color: #22c55e; font-weight: 950; } /* even par = green */
-
+    /* Summary totals coloring */
+    .sum-under { color: #ef4444; font-weight: 950; }
+    .sum-even  { color: #22c55e; font-weight: 950; }
 
     /* Scorecard-style marks */
     .hole-mark {
@@ -342,8 +307,6 @@
       padding: 0 8px;
       line-height: 1;
     }
-
-    /* Singles */
     .hole-mark.circle {
       border: 2px solid rgba(233,238,245,.92);
       border-radius: 999px;
@@ -352,13 +315,7 @@
       border: 2px solid rgba(233,238,245,.92);
       border-radius: 8px;
     }
-
-    /* Doubles (eagle+, double bogey+) */
-    .hole-mark.double {
-      border-width: 4px;
-    }
-
-    /* Bigger mark for Cards view score number */
+    .hole-mark.double { border-width: 4px; }
     .hole-mark.cards {
       min-width: 36px;
       height: 36px;
@@ -433,9 +390,7 @@
       .sheet{ max-width: 520px; }
     }
 
-    .sheet-inner{
-      padding: 12px 16px 16px;
-    }
+    .sheet-inner{ padding: 12px 16px 16px; }
     .grab{
       width: 44px;
       height: 5px;
@@ -517,58 +472,51 @@
 </head>
 
 <body>
-  
- <header>
-  <div>
-    <h1>Scorecard</h1>
 
-    <div class="row" style="margin-top:10px;">
-      <label class="pill" for="courseSelect" style="display:flex; gap:8px; align-items:center;">
-        Course
-        <select id="courseSelect" style="
-          background: transparent;
-          color: var(--text);
-          border: 0;
-          font-weight: 950;
-          outline: none;
-          appearance: none;
-          -webkit-appearance: none;
-          padding-right: 14px;
-        "></select>
-      </label>
+  <header>
+    <div>
+      <h1>Scorecard</h1>
+
+      <div class="row" style="margin-top:10px;">
+        <label class="pill" for="courseSelect" style="display:flex; gap:8px; align-items:center;">
+          Course
+          <select id="courseSelect" style="
+            background: transparent;
+            color: var(--text);
+            border: 0;
+            font-weight: 950;
+            outline: none;
+            appearance: none;
+            -webkit-appearance: none;
+            padding-right: 14px;
+          "></select>
+        </label>
+      </div>
     </div>
-  </div>
-</header>
-
-
+  </header>
 
   <!-- Cards view -->
   <main id="viewCards">
     <section class="card">
       <div class="card-inner">
-
-        
         <div class="totals-head">
-  <div class="totals-left single-line">
-    <!-- Ring -->
-    <div class="ring" aria-label="Round progress">
-      <svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true">
-        <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="6"></circle>
-        <circle id="ringArc" cx="27" cy="27" r="22" fill="none"
-                stroke="rgba(59,130,246,.95)" stroke-width="6"
-                stroke-linecap="round"
-                stroke-dasharray="0 999"
-                transform="rotate(-90 27 27)"></circle>
-      </svg>
-      <div class="pct" id="ringPct">0%</div>
-    </div>
+          <div class="totals-left single-line">
+            <div class="ring" aria-label="Round progress">
+              <svg width="54" height="54" viewBox="0 0 54 54" aria-hidden="true">
+                <circle cx="27" cy="27" r="22" fill="none" stroke="rgba(255,255,255,.10)" stroke-width="6"></circle>
+                <circle id="ringArc" cx="27" cy="27" r="22" fill="none"
+                        stroke="rgba(59,130,246,.95)" stroke-width="6"
+                        stroke-linecap="round"
+                        stroke-dasharray="0 999"
+                        transform="rotate(-90 27 27)"></circle>
+              </svg>
+              <div class="pct" id="ringPct">0%</div>
+            </div>
+            <div id="thruHoles" class="thru-text">Thru 0 Holes</div>
+          </div>
 
-    <!-- Thru text (sibling of ring, not inside it) -->
-    <div id="thruHoles" class="thru-text">Thru 0 Holes</div>
-  </div>
-
-  <div class="btn reset" id="resetBtn" title="Reset scores">↺</div>
-</div>
+          <div class="btn reset" id="resetBtn" title="Reset scores">↺</div>
+        </div>
 
         <div id="totalsPlayers" style="margin-top:10px;"></div>
 
@@ -590,10 +538,9 @@
         <div class="small" style="margin-top:4px;">Tap a score cell to edit</div>
 
         <div class="footer-actions" style="margin-top:12px;">
-  <div class="small" id="copyStatus">Copy score totals for texting</div>
-  <button class="ghost" id="copyBtn" type="button">Copy Scores</button>
-</div>
-
+          <div class="small" id="copyStatus">Copy score totals for texting</div>
+          <button class="ghost" id="copyBtn" type="button">Copy Scores</button>
+        </div>
 
         <div class="divider"></div>
 
@@ -632,825 +579,776 @@
     </div>
   </div>
 
-<script>
-/**
- * The Oaks (Spanish Fork) — Blue tees
- */
-
-// Register service worker (PWA offline)
-if ("serviceWorker" in navigator) {
-  window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
-}
-
-  const copyBtn = document.getElementById("copyBtn");
-const copyStatus = document.getElementById("copyStatus");
-
-function holesCompletedCount() {
-  let completed = 0;
-  for (let i = 0; i < 18; i++) {
-    if (state.scores.some(p => p[i] !== null)) completed++;
-  }
-  return completed;
-}
-
-function buildScorecardText() {
-  const courseName =
-    (typeof COURSES !== "undefined" && COURSES[activeCourseId])
-      ? COURSES[activeCourseId].name
-      : "Scorecard";
-
-  const thru = holesCompletedCount();
-
-  const lines = [];
-  lines.push(courseName);
-  lines.push("");
-
-  // Only include players who have at least 1 entered score (not null)
-  const activePlayers = state.players
-    .map((name, pIdx) => ({ name, pIdx }))
-    .filter(({ pIdx }) => state.scores[pIdx].some(v => v !== null));
-
-  if (activePlayers.length === 0) {
-    lines.push("No scores entered yet.");
-    return lines.join("\n");
-  }
-
-  activePlayers.forEach(({ name, pIdx }) => {
-    const playerName = String(name || `Player ${pIdx + 1}`).trim();
-    const total = totalStrokes(pIdx);
-    const tp = totalToPar(pIdx);
-    lines.push(`${playerName} ${total} (${formatToPar(tp)})`);
-  });
-
-  return lines.join("\n");
-}
-
-
-async function copyTextToClipboard(text) {
-  // Modern clipboard
-  if (navigator.clipboard && window.isSecureContext) {
-    await navigator.clipboard.writeText(text);
-    return;
-  }
-
-  // Fallback (older Safari)
-  const ta = document.createElement("textarea");
-  ta.value = text;
-  ta.setAttribute("readonly", "");
-  ta.style.position = "fixed";
-  ta.style.top = "-9999px";
-  document.body.appendChild(ta);
-  ta.select();
-  document.execCommand("copy");
-  document.body.removeChild(ta);
-}
-
-if (copyBtn) {
-  copyBtn.addEventListener("click", async () => {
-    try {
-      const text = buildScorecardText();
-      await copyTextToClipboard(text);
-
-      if (copyStatus) copyStatus.textContent = "Copied ✅ Paste into iMessage";
-      setTimeout(() => {
-        if (copyStatus) copyStatus.textContent = "Copy a clean scorecard for texting";
-      }, 2500);
-
-      haptic();
-    } catch (e) {
-      if (copyStatus) copyStatus.textContent = "Couldn’t copy — try again";
-      setTimeout(() => {
-        if (copyStatus) copyStatus.textContent = "Copy a clean scorecard for texting";
-      }, 2500);
+  <script>
+    // Register service worker (PWA offline)
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => navigator.serviceWorker.register("./sw.js").catch(() => {}));
     }
-  });
-}
 
-
-const STORAGE_VERSION = "v1";
-function storageKey() {
-  return `scorecard_${activeCourseId}_${STORAGE_VERSION}`;
-}
-
-const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
-
-const COURSES = {
-  oaks_blue: {
-    name: "The Oaks",
-    tee: "Blue Tees",
-    // Keep YOUR current Oaks data here (I copied from your posted code)
-    holes: [
-      { n: 1,  yards: 485, par: 5 },
-      { n: 2,  yards: 195, par: 3 },
-      { n: 3,  yards: 403, par: 4 },
-      { n: 4,  yards: 413, par: 4 },
-      { n: 5,  yards: 436, par: 4 },
-      { n: 6,  yards: 178, par: 3 },
-      { n: 7,  yards: 514, par: 5 },
-      { n: 8,  yards: 384, par: 4 },
-      { n: 9,  yards: 311, par: 4 },
-      { n: 10, yards: 521, par: 5 },
-      { n: 11, yards: 358, par: 4 },
-      { n: 12, yards: 123, par: 3 },
-      { n: 13, yards: 326, par: 4 },
-      { n: 14, yards: 309, par: 4 },
-      { n: 15, yards: 302, par: 4 },
-      { n: 16, yards: 442, par: 4 },
-      { n: 17, yards: 165, par: 3 },
-      { n: 18, yards: 493, par: 5 },
-    ],
-  },
-
-  timpanogos_blue: {
-    name: "Timpanogos Golf Club",
-    tee: "Blue Tees",
-    holes: [
-      { n: 1,  yards: 515, par: 5 },
-      { n: 2,  yards: 171, par: 3 },
-      { n: 3,  yards: 430, par: 4 },
-      { n: 4,  yards: 155, par: 3 },
-      { n: 5,  yards: 555, par: 5 },
-      { n: 6,  yards: 389, par: 4 },
-      { n: 7,  yards: 160, par: 3 },
-      { n: 8,  yards: 500, par: 5 },
-      { n: 9,  yards: 433, par: 4 },
-      { n: 10, yards: 501, par: 5 },
-      { n: 11, yards: 418, par: 4 },
-      { n: 12, yards: 185, par: 3 },
-      { n: 13, yards: 408, par: 4 },
-      { n: 14, yards: 311, par: 4 },
-      { n: 15, yards: 150, par: 3 },
-      { n: 16, yards: 426, par: 4 },
-      { n: 17, yards: 397, par: 4 },
-      { n: 18, yards: 575, par: 5 },
-    ],
-  },
-
-  canyonhills_blue: {
-    name: "Canyon Hills",
-    tee: "Blue Tees",
-    holes: [
-      { n: 1,  yards: 455, par: 4 },
-      { n: 2,  yards: 175, par: 3 },
-      { n: 3,  yards: 343, par: 4 },
-      { n: 4,  yards: 428, par: 4 },
-      { n: 5,  yards: 214, par: 3 },
-      { n: 6,  yards: 524, par: 5 },
-      { n: 7,  yards: 419, par: 4 },
-      { n: 8,  yards: 509, par: 5 },
-      { n: 9,  yards: 422, par: 4 },
-      { n: 10, yards: 455, par: 4 },
-      { n: 11, yards: 175, par: 3 },
-      { n: 12, yards: 343, par: 4 },
-      { n: 13, yards: 428, par: 4 },
-      { n: 14, yards: 214, par: 3 },
-      { n: 15, yards: 524, par: 5 },
-      { n: 16, yards: 419, par: 4 },
-      { n: 17, yards: 509, par: 5 },
-      { n: 18, yards: 422, par: 4 },
-    ],
-  },
-
-  hobble_blue: {
-    name: "Hobble Creek",
-    tee: "Blue Tees",
-    // Blue yards + pars from GolfLink scorecard table :contentReference[oaicite:1]{index=1}
-    holes: [
-      { n: 1,  yards: 395, par: 4 },
-      { n: 2,  yards: 385, par: 4 },
-      { n: 3,  yards: 495, par: 5 },
-      { n: 4,  yards: 190, par: 3 },
-      { n: 5,  yards: 420, par: 4 },
-      { n: 6,  yards: 190, par: 3 },
-      { n: 7,  yards: 355, par: 4 },
-      { n: 8,  yards: 395, par: 4 },
-      { n: 9,  yards: 510, par: 5 },
-      { n: 10, yards: 160, par: 3 },
-      { n: 11, yards: 370, par: 4 },
-      { n: 12, yards: 375, par: 4 },
-      { n: 13, yards: 470, par: 5 },
-      { n: 14, yards: 150, par: 3 },
-      { n: 15, yards: 400, par: 4 },
-      { n: 16, yards: 160, par: 3 },
-      { n: 17, yards: 410, par: 4 },
-      { n: 18, yards: 485, par: 5 },
-    ],
-  },
-};
-
-// Active course
-let activeCourseId = localStorage.getItem("activeCourseId") || "oaks_blue";
-let holes = COURSES[activeCourseId].holes;
-
-  
-// DOM
-const totalsPlayers = document.getElementById("totalsPlayers");
-const carousel = document.getElementById("carousel");
-const resetBtn = document.getElementById("resetBtn");
-const clearBtn = document.getElementById("clearBtn");
-
-const viewCards = document.getElementById("viewCards");
-const viewSummary = document.getElementById("viewSummary");
-const tabCards = document.getElementById("tabCards");
-const tabSummary = document.getElementById("tabSummary");
-const summaryTable = document.getElementById("summaryTable");
-
-// Ring DOM
-const ringArc = document.getElementById("ringArc");
-const ringPct = document.getElementById("ringPct");
-const RING_R = 22;
-const RING_C = 2 * Math.PI * RING_R;
-
-// Sheet DOM
-const backdrop = document.getElementById("backdrop");
-const sheet = document.getElementById("sheet");
-const sheetTitle = document.getElementById("sheetTitle");
-const sheetLabel = document.getElementById("sheetLabel");
-const sheetHint = document.getElementById("sheetHint");
-const sheetInput = document.getElementById("sheetInput");
-const sheetClose = document.getElementById("sheetClose");
-const sheetSave = document.getElementById("sheetSave");
-const sheetClear = document.getElementById("sheetClear");
-
-// State
-let state = loadState() || freshState();
-function freshState(){
-  return {
-    players: defaultPlayers.slice(),
-    scores: defaultPlayers.map(() => Array(18).fill(null)),
-    activeView: "cards",
-  };
-}
-
-// Score animation tracking (for count-up)
-const animMap = new Map(); // key: "p-h" -> {from,to,start,dur}
-
-// Editor context
-let editor = null; // { type: "name"|"score", playerIndex, holeIndex? }
-
-// Events
-resetBtn.addEventListener("click", () => {
-  state.scores = state.players.map(() => Array(18).fill(null));
-  saveState(); render(); haptic();
-});
-clearBtn.addEventListener("click", () => {
-  localStorage.removeItem(storageKey());
-
-  state = freshState();
-  render(); haptic();
-});
-tabCards.addEventListener("click", () => switchView("cards"));
-tabSummary.addEventListener("click", () => switchView("summary"));
-
-function switchView(view){
-  state.activeView = view;
-  saveState();
-  renderView();
-  haptic();
-}
-
-// Sheet events
-sheetClose.addEventListener("click", closeSheet);
-backdrop.addEventListener("click", closeSheet);
-
-sheetSave.addEventListener("click", () => {
-  if (!editor) return;
-  const val = sheetInput.value.trim();
-
-  if (editor.type === "name") {
-    if (!val) return;
-    state.players[editor.playerIndex] = val;
-  } else {
-    if (val === "") {
-      setScore(editor.playerIndex, editor.holeIndex, null);
-    } else {
-      const n = Number(val);
-      if (!Number.isFinite(n) || n < 0 || n > 30) return;
-      setScore(editor.playerIndex, editor.holeIndex, Math.floor(n));
+    const STORAGE_VERSION = "v1";
+    function storageKey() {
+      return `scorecard_${activeCourseId}_${STORAGE_VERSION}`;
     }
-  }
 
-  saveState();
-  render();
-  closeSheet();
-  haptic();
-});
+    const defaultPlayers = ["Player 1", "Player 2", "Player 3", "Player 4"];
 
-sheetClear.addEventListener("click", () => {
-  if (!editor) return;
-  if (editor.type === "name") {
-    sheetInput.value = "";
-    sheetInput.focus();
-    return;
-  }
-  sheetInput.value = "";
-  sheetInput.focus();
-  haptic();
-});
+    const COURSES = {
+      oaks_blue: {
+        name: "The Oaks",
+        tee: "Blue Tees",
+        holes: [
+          { n: 1,  yards: 485, par: 5 },
+          { n: 2,  yards: 195, par: 3 },
+          { n: 3,  yards: 403, par: 4 },
+          { n: 4,  yards: 413, par: 4 },
+          { n: 5,  yards: 436, par: 4 },
+          { n: 6,  yards: 178, par: 3 },
+          { n: 7,  yards: 514, par: 5 },
+          { n: 8,  yards: 384, par: 4 },
+          { n: 9,  yards: 311, par: 4 },
+          { n: 10, yards: 521, par: 5 },
+          { n: 11, yards: 358, par: 4 },
+          { n: 12, yards: 123, par: 3 },
+          { n: 13, yards: 326, par: 4 },
+          { n: 14, yards: 309, par: 4 },
+          { n: 15, yards: 302, par: 4 },
+          { n: 16, yards: 442, par: 4 },
+          { n: 17, yards: 165, par: 3 },
+          { n: 18, yards: 493, par: 5 },
+        ],
+      },
 
-function openSheet(ctx){
-  editor = ctx;
+      timpanogos_blue: {
+        name: "Timpanogos Golf Club",
+        tee: "Blue Tees",
+        holes: [
+          { n: 1,  yards: 515, par: 5 },
+          { n: 2,  yards: 171, par: 3 },
+          { n: 3,  yards: 430, par: 4 },
+          { n: 4,  yards: 155, par: 3 },
+          { n: 5,  yards: 555, par: 5 },
+          { n: 6,  yards: 389, par: 4 },
+          { n: 7,  yards: 160, par: 3 },
+          { n: 8,  yards: 500, par: 5 },
+          { n: 9,  yards: 433, par: 4 },
+          { n: 10, yards: 501, par: 5 },
+          { n: 11, yards: 418, par: 4 },
+          { n: 12, yards: 185, par: 3 },
+          { n: 13, yards: 408, par: 4 },
+          { n: 14, yards: 311, par: 4 },
+          { n: 15, yards: 150, par: 3 },
+          { n: 16, yards: 426, par: 4 },
+          { n: 17, yards: 397, par: 4 },
+          { n: 18, yards: 575, par: 5 },
+        ],
+      },
 
-  if (ctx.type === "name") {
-    sheetTitle.textContent = "Edit Player Name";
-    sheetLabel.textContent = `Player ${ctx.playerIndex + 1}`;
-    sheetHint.textContent = "Short names look best on the cards.";
-    sheetInput.type = "text";
-    sheetInput.inputMode = "text";
-    sheetInput.value = state.players[ctx.playerIndex] || "";
-  } else {
-    const holeNo = holes[ctx.holeIndex].n;
-    sheetTitle.textContent = "Edit Score";
-    sheetLabel.textContent = `${state.players[ctx.playerIndex] || "Player"} · Hole ${holeNo}`;
-    sheetHint.textContent = "Enter strokes (0–30) or Clear to blank it out.";
-    sheetInput.type = "number";
-    sheetInput.inputMode = "numeric";
-    const cur = state.scores[ctx.playerIndex][ctx.holeIndex];
-    sheetInput.value = (cur === null ? "" : String(cur));
-  }
+      canyonhills_blue: {
+        name: "Canyon Hills",
+        tee: "Blue Tees",
+        holes: [
+          { n: 1,  yards: 455, par: 4 },
+          { n: 2,  yards: 175, par: 3 },
+          { n: 3,  yards: 343, par: 4 },
+          { n: 4,  yards: 428, par: 4 },
+          { n: 5,  yards: 214, par: 3 },
+          { n: 6,  yards: 524, par: 5 },
+          { n: 7,  yards: 419, par: 4 },
+          { n: 8,  yards: 509, par: 5 },
+          { n: 9,  yards: 422, par: 4 },
+          { n: 10, yards: 455, par: 4 },
+          { n: 11, yards: 175, par: 3 },
+          { n: 12, yards: 343, par: 4 },
+          { n: 13, yards: 428, par: 4 },
+          { n: 14, yards: 214, par: 3 },
+          { n: 15, yards: 524, par: 5 },
+          { n: 16, yards: 419, par: 4 },
+          { n: 17, yards: 509, par: 5 },
+          { n: 18, yards: 422, par: 4 },
+        ],
+      },
 
-  backdrop.classList.add("show");
-  sheet.classList.add("show");
-  sheet.setAttribute("aria-hidden", "false");
+      hobble_blue: {
+        name: "Hobble Creek",
+        tee: "Blue Tees",
+        holes: [
+          { n: 1,  yards: 395, par: 4 },
+          { n: 2,  yards: 385, par: 4 },
+          { n: 3,  yards: 495, par: 5 },
+          { n: 4,  yards: 190, par: 3 },
+          { n: 5,  yards: 420, par: 4 },
+          { n: 6,  yards: 190, par: 3 },
+          { n: 7,  yards: 355, par: 4 },
+          { n: 8,  yards: 395, par: 4 },
+          { n: 9,  yards: 510, par: 5 },
+          { n: 10, yards: 160, par: 3 },
+          { n: 11, yards: 370, par: 4 },
+          { n: 12, yards: 375, par: 4 },
+          { n: 13, yards: 470, par: 5 },
+          { n: 14, yards: 150, par: 3 },
+          { n: 15, yards: 400, par: 4 },
+          { n: 16, yards: 160, par: 3 },
+          { n: 17, yards: 410, par: 4 },
+          { n: 18, yards: 485, par: 5 },
+        ],
+      },
+    };
 
-  setTimeout(() => {
-    sheetInput.focus();
-    sheetInput.select();
-  }, 50);
-}
+    // Active course
+    let activeCourseId = localStorage.getItem("activeCourseId") || "oaks_blue";
+    let holes = COURSES[activeCourseId].holes;
 
-function closeSheet(){
-  backdrop.classList.remove("show");
-  sheet.classList.remove("show");
-  sheet.setAttribute("aria-hidden", "true");
-  editor = null;
-}
+    // DOM
+    const courseSelect = document.getElementById("courseSelect");
+    const totalsPlayers = document.getElementById("totalsPlayers");
+    const carousel = document.getElementById("carousel");
+    const resetBtn = document.getElementById("resetBtn");
+    const clearBtn = document.getElementById("clearBtn");
 
-// Core: set score with animation bookkeeping
-function setScore(pIdx, hIdx, newVal){
-  const cur = state.scores[pIdx][hIdx];
-  state.scores[pIdx][hIdx] = newVal;
+    const viewCards = document.getElementById("viewCards");
+    const viewSummary = document.getElementById("viewSummary");
+    const tabCards = document.getElementById("tabCards");
+    const tabSummary = document.getElementById("tabSummary");
+    const summaryTable = document.getElementById("summaryTable");
 
-  const from = (cur ?? 0);
-  const to = (newVal ?? 0);
-  const key = `${pIdx}-${hIdx}`;
-  const courseSelect = document.getElementById("courseSelect");
-  const teePill = document.getElementById("teePill");
+    // Ring DOM
+    const ringArc = document.getElementById("ringArc");
+    const ringPct = document.getElementById("ringPct");
+    const RING_R = 22;
+    const RING_C = 2 * Math.PI * RING_R;
 
-  animMap.set(key, { from, to, start: performance.now(), dur: 220 });
-}
+    // Sheet DOM
+    const backdrop = document.getElementById("backdrop");
+    const sheet = document.getElementById("sheet");
+    const sheetTitle = document.getElementById("sheetTitle");
+    const sheetLabel = document.getElementById("sheetLabel");
+    const sheetHint = document.getElementById("sheetHint");
+    const sheetInput = document.getElementById("sheetInput");
+    const sheetClose = document.getElementById("sheetClose");
+    const sheetSave = document.getElementById("sheetSave");
+    const sheetClear = document.getElementById("sheetClear");
 
-/** Scorecard marks:
- * - Birdie (-1): circle
- * - Eagle+ (<= -2): double circle
- * - Bogey (+1): square
- * - Double+ (>= +2): double square
- * - Par: no mark
- */
-function markClassForScore(score, par) {
-  const d = score - par;
+    // Copy UI
+    const copyBtn = document.getElementById("copyBtn");
+    const copyStatus = document.getElementById("copyStatus");
 
-  if (d <= -2) return "circle double";
-  if (d === -1) return "circle";
+    // State
+    let state = loadState() || freshState();
+    function freshState(){
+      return {
+        players: defaultPlayers.slice(),
+        scores: defaultPlayers.map(() => Array(18).fill(null)),
+        activeView: "cards",
+      };
+    }
 
-  if (d === 1) return "square";
-  if (d >= 2) return "square double";
+    // Score animation tracking
+    const animMap = new Map(); // key: "p-h" -> {from,to,start,dur}
 
-  return "";
-}
+    // Editor context
+    let editor = null; // { type: "name"|"score", playerIndex, holeIndex? }
 
-  function toParRange(pIdx, start, end) {
-  let tp = 0;
-  for (let i = start; i <= end; i++) {
-    const s = state.scores[pIdx][i];
-    if (s !== null) tp += (s - holes[i].par);
-  }
-  return tp;
-}
+    function holesCompletedCount() {
+      let completed = 0;
+      for (let i = 0; i < 18; i++) {
+        if (state.scores.some(p => p[i] !== null)) completed++;
+      }
+      return completed;
+    }
 
-function sumClassForToPar(tp) {
-  if (tp < 0) return "sum-under";
-  if (tp === 0) return "sum-even";
-  return "";
-}
+    function buildScorecardText() {
+      const courseName =
+        (typeof COURSES !== "undefined" && COURSES[activeCourseId])
+          ? COURSES[activeCourseId].name
+          : "Scorecard";
 
-  function populateCourseSelect() {
-  courseSelect.innerHTML = "";
-  Object.entries(COURSES).forEach(([id, c]) => {
-    const opt = document.createElement("option");
-    opt.value = id;
-    opt.textContent = c.name;
-    if (id === activeCourseId) opt.selected = true;
-    courseSelect.appendChild(opt);
-  });
-  teePill.textContent = COURSES[activeCourseId].tee || "Blue Tees";
-}
+      const lines = [];
+      lines.push(courseName);
+      lines.push("");
 
-courseSelect.addEventListener("change", () => {
-  // Save current course state
-  saveState();
+      const activePlayers = state.players
+        .map((name, pIdx) => ({ name, pIdx }))
+        .filter(({ pIdx }) => state.scores[pIdx].some(v => v !== null));
 
-  // Switch
-  activeCourseId = courseSelect.value;
-  localStorage.setItem("activeCourseId", activeCourseId);
-
-  // Update holes + load that course’s saved round (or fresh)
-  holes = COURSES[activeCourseId].holes;
-  state = loadState() || freshState();
-
-  // Update UI + render
-  teePill.textContent = COURSES[activeCourseId].tee || "Blue Tees";
-  render();
-});
-
-
-// Render
-function render(){
-  renderView();
-  renderTotals();
-  renderHoles();
-  renderRing();
-  renderSummary();
-  kickAnimations();
-}
-
-function renderView(){
-  const isCards = state.activeView !== "summary";
-  viewCards.style.display = isCards ? "" : "none";
-  viewSummary.style.display = isCards ? "none" : "";
-  tabCards.classList.toggle("active", isCards);
-  tabSummary.classList.toggle("active", !isCards);
-}
-
-function renderTotals(){
-  totalsPlayers.innerHTML = "";
-  state.players.forEach((name, pIdx) => {
-    const total = totalStrokes(pIdx);
-    const toPar = totalToPar(pIdx);
-    const out = sumRange(pIdx, 0, 8);
-    const inn = sumRange(pIdx, 9, 17);
-
-    const row = document.createElement("div");
-    row.className = "player-row";
-
-    const nameEl = document.createElement("div");
-    nameEl.className = "player-name editable";
-    nameEl.innerHTML = `<span>${escapeHtml(name)}</span><span class="pencil">✎</span>`;
-    nameEl.title = "Tap to edit name";
-    nameEl.addEventListener("click", () => openSheet({ type:"name", playerIndex: pIdx }));
-
-    const chips = document.createElement("div");
-    chips.className = "chips";
-    chips.appendChild(chip("Total", total));
-    chips.appendChild(chip("To Par", formatToPar(toPar)));
-    chips.appendChild(chip("OUT", out));
-    chips.appendChild(chip("IN", inn));
-
-    row.appendChild(nameEl);
-    row.appendChild(chips);
-    totalsPlayers.appendChild(row);
-  });
-}
-
-function renderHoles(){
-  carousel.innerHTML = "";
-  holes.forEach((h, hIdx) => {
-    const card = document.createElement("section");
-    card.className = "card hole-card";
-
-    const inner = document.createElement("div");
-    inner.className = "card-inner";
-    inner.innerHTML = `
-      <p class="hole-num">Hole ${h.n}</p>
-      <div class="hole-sub">Par ${h.par} · ${h.yards} yds</div>
-
-      <div class="metric-row">
-        ${metric("Par", h.par)}
-        ${metric("Yards", h.yards)}
-      </div>
-
-      <div class="divider"></div>
-      <div id="scores-${hIdx}"></div>
-    `;
-
-    card.appendChild(inner);
-    carousel.appendChild(card);
-
-    const scoresWrap = inner.querySelector(`#scores-${hIdx}`);
-
-    state.players.forEach((name, pIdx) => {
-      const row = document.createElement("div");
-      row.className = "score-row";
-
-      const left = document.createElement("div");
-      left.className = "player-name editable";
-      left.innerHTML = `<span>${escapeHtml(name)}</span><span class="pencil">✎</span>`;
-      left.title = "Tap to edit name";
-      left.addEventListener("click", () => openSheet({ type:"name", playerIndex: pIdx }));
-
-      const controls = document.createElement("div");
-      controls.className = "score-controls";
-
-      const minus = document.createElement("div");
-      minus.className = "btn";
-      minus.textContent = "–";
-      minus.addEventListener("click", () => {
-        const cur = state.scores[pIdx][hIdx] ?? 0;
-        setScore(pIdx, hIdx, Math.max(0, cur - 1));
-        saveState(); render(); haptic();
-      });
-
-      const score = document.createElement("div");
-      score.className = "score";
-      score.dataset.key = `${pIdx}-${hIdx}`;
-
-      const v = state.scores[pIdx][hIdx];
-      const par = holes[hIdx].par;
-      const display = (v ?? 0);
-
-      if (v !== null) {
-        const markClass = markClassForScore(v, par);
-        if (markClass) {
-          score.innerHTML = `<span class="hole-mark cards ${markClass}">${display}</span>`;
-        } else {
-          score.textContent = String(display);
-        }
-      } else {
-        score.textContent = String(display);
+      if (activePlayers.length === 0) {
+        lines.push("No scores entered yet.");
+        return lines.join("\n");
       }
 
-      const plus = document.createElement("div");
-      plus.className = "btn plus";
-      plus.textContent = "+";
-      plus.addEventListener("click", () => {
-        const cur = state.scores[pIdx][hIdx] ?? 0;
-        setScore(pIdx, hIdx, cur + 1);
-        saveState(); render(); haptic();
+      activePlayers.forEach(({ name, pIdx }) => {
+        const playerName = String(name || `Player ${pIdx + 1}`).trim();
+        const total = totalStrokes(pIdx);
+        const tp = totalToPar(pIdx);
+        lines.push(`${playerName} ${total} (${formatToPar(tp)})`);
       });
 
-      controls.appendChild(minus);
-      controls.appendChild(score);
-      controls.appendChild(plus);
-
-      row.appendChild(left);
-      row.appendChild(controls);
-      scoresWrap.appendChild(row);
-    });
-  });
-}
-
-function renderRing(){
-  const completed = holesCompletedCount();
-  const pct = Math.round((completed/18)*100);
-  ringPct.textContent = pct + "%";
-
-  const filled = (pct/100) * RING_C;
-  ringArc.setAttribute("stroke-dasharray", `${filled} ${RING_C}`);
-
-  const thruEl = document.getElementById("thruHoles");
-  if (thruEl) {
-    if (completed === 0) thruEl.textContent = "Thru 0 Holes";
-    else if (completed === 1) thruEl.textContent = "Thru 1 Hole";
-    else thruEl.textContent = `Thru ${completed} Holes`;
-  }
-}
-
-
-/** Summary (tap-to-edit) + marks */
-function renderSummary() {
-  const headers = ["Player", ...holes.map(h => String(h.n)), "OUT", "IN", "Total", "To Par"];
-
-  let html = "<thead><tr>";
-  for (const h of headers) html += `<th>${escapeHtml(h)}</th>`;
-  html += "</tr></thead><tbody>";
-
-  state.players.forEach((name, pIdx) => {
-    html += "<tr>";
-
-    html += `
-      <td class="tap-cell" data-type="name" data-player="${pIdx}">
-        <span class="editable">
-          <span>${escapeHtml(name)}</span> <span class="pencil">✎</span>
-        </span>
-      </td>
-    `;
-
-    for (let i = 0; i < 18; i++) {
-      const v = state.scores[pIdx][i];
-      const par = holes[i].par;
-
-      const markClass = (v === null) ? "" : markClassForScore(v, par);
-      const cellContent = (v === null)
-        ? "—"
-        : `<span class="hole-mark ${markClass}">${v}</span>`;
-
-      html += `
-        <td class="tap-cell"
-            data-type="score"
-            data-player="${pIdx}"
-            data-hole="${i}">
-          ${cellContent}
-        </td>
-      `;
+      return lines.join("\n");
     }
 
-    const out = sumRange(pIdx, 0, 8);
-const inn = sumRange(pIdx, 9, 17);
-const total = totalStrokes(pIdx);
-
-// To-par for each side + total
-const outTP = toParRange(pIdx, 0, 8);
-const inTP  = toParRange(pIdx, 9, 17);
-const totTP = totalToPar(pIdx);
-
-const outCls = sumClassForToPar(outTP);
-const inCls  = sumClassForToPar(inTP);
-const totCls = sumClassForToPar(totTP);
-
-html += `
-  <td class="${outCls}">${out}</td>
-  <td class="${inCls}">${inn}</td>
-  <td class="${totCls}">${total}</td>
-  <td class="${totCls}">${formatToPar(totTP)}</td>
-`;
-
-
-
-    html += "</tr>";
-  });
-
-  const parOut = holes.slice(0, 9).reduce((s, h) => s + h.par, 0);
-  const parIn  = holes.slice(9, 18).reduce((s, h) => s + h.par, 0);
-  const parTot = holes.reduce((s, h) => s + h.par, 0);
-
-  html += `
-    <tr class="totrow">
-      <td>Par</td>
-      ${holes.map(h => `<td>${h.par}</td>`).join("")}
-      <td>${parOut}</td>
-      <td>${parIn}</td>
-      <td>${parTot}</td>
-      <td>E</td>
-    </tr>
-  `;
-
-  html += "</tbody>";
-  summaryTable.innerHTML = html;
-
-  summaryTable.querySelectorAll(".tap-cell").forEach(td => {
-    td.addEventListener("click", () => {
-      const type = td.getAttribute("data-type");
-      const p = Number(td.getAttribute("data-player"));
-
-      if (type === "name") {
-        openSheet({ type: "name", playerIndex: p });
+    async function copyTextToClipboard(text) {
+      if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
         return;
       }
 
-      const h = Number(td.getAttribute("data-hole"));
-      openSheet({ type: "score", playerIndex: p, holeIndex: h });
+      const ta = document.createElement("textarea");
+      ta.value = text;
+      ta.setAttribute("readonly", "");
+      ta.style.position = "fixed";
+      ta.style.top = "-9999px";
+      document.body.appendChild(ta);
+      ta.select();
+      document.execCommand("copy");
+      document.body.removeChild(ta);
+    }
+
+    if (copyBtn) {
+      copyBtn.addEventListener("click", async () => {
+        try {
+          const text = buildScorecardText();
+          await copyTextToClipboard(text);
+
+          if (copyStatus) copyStatus.textContent = "Copied ✅ Paste into iMessage";
+          setTimeout(() => {
+            if (copyStatus) copyStatus.textContent = "Copy score totals for texting";
+          }, 2500);
+
+          haptic();
+        } catch (e) {
+          if (copyStatus) copyStatus.textContent = "Couldn’t copy — try again";
+          setTimeout(() => {
+            if (copyStatus) copyStatus.textContent = "Copy score totals for texting";
+          }, 2500);
+        }
+      });
+    }
+
+    // Events
+    resetBtn.addEventListener("click", () => {
+      state.scores = state.players.map(() => Array(18).fill(null));
+      saveState(); render(); haptic();
     });
-  });
-}
 
-// Animation loop (count-up + pop) + marks
-let animRaf = null;
-function kickAnimations(){
-  if (animRaf) cancelAnimationFrame(animRaf);
-  if (animMap.size === 0) return;
-  animRaf = requestAnimationFrame(stepAnims);
-}
+    clearBtn.addEventListener("click", () => {
+      localStorage.removeItem(storageKey());
+      state = freshState();
+      render(); haptic();
+    });
 
-function stepAnims(now){
-  const nodes = document.querySelectorAll(".score[data-key]");
-  const nodeByKey = new Map();
-  nodes.forEach(n => nodeByKey.set(n.dataset.key, n));
+    tabCards.addEventListener("click", () => switchView("cards"));
+    tabSummary.addEventListener("click", () => switchView("summary"));
 
-  let still = 0;
-
-  for (const [key, a] of animMap.entries()){
-    const node = nodeByKey.get(key);
-    if (!node) { animMap.delete(key); continue; }
-
-    const t = clamp((now - a.start) / a.dur, 0, 1);
-    const eased = easeOutCubic(t);
-    const value = Math.round(a.from + (a.to - a.from) * eased);
-
-    // Apply marks during animation
-    const [pStr, hStr] = node.dataset.key.split("-");
-    const hIdx = Number(hStr);
-    const par = holes[hIdx].par;
-
-    const markClass = markClassForScore(value, par);
-    if (markClass) {
-      node.innerHTML = `<span class="hole-mark cards ${markClass}">${value}</span>`;
-    } else {
-      node.textContent = String(value);
+    function switchView(view){
+      state.activeView = view;
+      saveState();
+      renderView();
+      haptic();
     }
 
-    node.classList.add("pop");
+    // Sheet events
+    sheetClose.addEventListener("click", closeSheet);
+    backdrop.addEventListener("click", closeSheet);
 
-    if (t >= 1){
-      setTimeout(() => node.classList.remove("pop"), 120);
-      animMap.delete(key);
-    } else {
-      still++;
+    sheetSave.addEventListener("click", () => {
+      if (!editor) return;
+      const val = sheetInput.value.trim();
+
+      if (editor.type === "name") {
+        if (!val) return;
+        state.players[editor.playerIndex] = val;
+      } else {
+        if (val === "") {
+          setScore(editor.playerIndex, editor.holeIndex, null);
+        } else {
+          const n = Number(val);
+          if (!Number.isFinite(n) || n < 0 || n > 30) return;
+          setScore(editor.playerIndex, editor.holeIndex, Math.floor(n));
+        }
+      }
+
+      saveState();
+      render();
+      closeSheet();
+      haptic();
+    });
+
+    sheetClear.addEventListener("click", () => {
+      if (!editor) return;
+      if (editor.type === "name") {
+        sheetInput.value = "";
+        sheetInput.focus();
+        return;
+      }
+      sheetInput.value = "";
+      sheetInput.focus();
+      haptic();
+    });
+
+    function openSheet(ctx){
+      editor = ctx;
+
+      if (ctx.type === "name") {
+        sheetTitle.textContent = "Edit Player Name";
+        sheetLabel.textContent = `Player ${ctx.playerIndex + 1}`;
+        sheetHint.textContent = "Short names look best on the cards.";
+        sheetInput.type = "text";
+        sheetInput.inputMode = "text";
+        sheetInput.value = state.players[ctx.playerIndex] || "";
+      } else {
+        const holeNo = holes[ctx.holeIndex].n;
+        sheetTitle.textContent = "Edit Score";
+        sheetLabel.textContent = `${state.players[ctx.playerIndex] || "Player"} · Hole ${holeNo}`;
+        sheetHint.textContent = "Enter strokes (0–30) or Clear to blank it out.";
+        sheetInput.type = "number";
+        sheetInput.inputMode = "numeric";
+        const cur = state.scores[ctx.playerIndex][ctx.holeIndex];
+        sheetInput.value = (cur === null ? "" : String(cur));
+      }
+
+      backdrop.classList.add("show");
+      sheet.classList.add("show");
+      sheet.setAttribute("aria-hidden", "false");
+
+      setTimeout(() => {
+        sheetInput.focus();
+        sheetInput.select();
+      }, 50);
     }
-  }
 
-  if (still > 0){
-    animRaf = requestAnimationFrame(stepAnims);
-  } else {
-    animRaf = null;
-  }
-}
+    function closeSheet(){
+      backdrop.classList.remove("show");
+      sheet.classList.remove("show");
+      sheet.setAttribute("aria-hidden", "true");
+      editor = null;
+    }
 
-// UI bits
-function chip(label, value){
-  const el = document.createElement("div");
-  el.className = "chip";
-  el.innerHTML = `<div class="lbl">${escapeHtml(label)}</div><div class="val">${escapeHtml(String(value))}</div>`;
-  return el;
-}
-function metric(label, value){
-  return `<div class="metric"><div class="lbl">${escapeHtml(label)}</div><div class="val">${escapeHtml(String(value))}</div></div>`;
-}
+    // Core: set score with animation bookkeeping
+    function setScore(pIdx, hIdx, newVal){
+      const cur = state.scores[pIdx][hIdx];
+      state.scores[pIdx][hIdx] = newVal;
 
-// Scoring helpers
+      const from = (cur ?? 0);
+      const to = (newVal ?? 0);
+      const key = `${pIdx}-${hIdx}`;
+      animMap.set(key, { from, to, start: performance.now(), dur: 220 });
+    }
 
-  function holesCompletedCount() {
-  let completed = 0;
-  for (let i = 0; i < 18; i++) {
-    if (state.scores.some(p => p[i] !== null)) completed++;
-  }
-  return completed;
-}
+    /** Scorecard marks:
+     * - Birdie (-1): circle
+     * - Eagle+ (<= -2): double circle
+     * - Bogey (+1): square
+     * - Double+ (>= +2): double square
+     * - Par: no mark
+     */
+    function markClassForScore(score, par) {
+      const d = score - par;
+      if (d <= -2) return "circle double";
+      if (d === -1) return "circle";
+      if (d === 1) return "square";
+      if (d >= 2) return "square double";
+      return "";
+    }
 
-function totalStrokes(pIdx){
-  return state.scores[pIdx].reduce((sum, v) => sum + (v ?? 0), 0);
-}
-function totalToPar(pIdx){
-  let tp = 0;
-  for (let i=0; i<18; i++){
-    const s = state.scores[pIdx][i];
-    if (s !== null) tp += (s - holes[i].par);
-  }
-  return tp;
-}
-function sumRange(pIdx, start, end){
-  let s = 0;
-  for (let i=start; i<=end; i++){
-    s += (state.scores[pIdx][i] ?? 0);
-  }
-  return s;
-}
-function formatToPar(v){
-  if (v === 0) return "E";
-  return v > 0 ? `+${v}` : `${v}`;
-}
-  function courseMeta(courseId){
-  const c = COURSES[courseId];
-  const parTotal = c.holes.reduce((s,h) => s + h.par, 0);
-  const yardsTotal = c.holes.reduce((s,h) => s + h.yards, 0);
-  return { name: c.name, parTotal, yardsTotal };
-}
+    function toParRange(pIdx, start, end) {
+      let tp = 0;
+      for (let i = start; i <= end; i++) {
+        const s = state.scores[pIdx][i];
+        if (s !== null) tp += (s - holes[i].par);
+      }
+      return tp;
+    }
 
+    function sumClassForToPar(tp) {
+      if (tp < 0) return "sum-under";
+      if (tp === 0) return "sum-even";
+      return "";
+    }
 
-// Storage
-function loadState(){
-  try{
-    const raw = localStorage.getItem(storageKey());
-    if (!raw) return null;
-    const parsed = JSON.parse(raw);
-    if (!parsed.players || !parsed.scores) return null;
-    if (!Array.isArray(parsed.players) || !Array.isArray(parsed.scores)) return null;
-    if (parsed.scores.length !== parsed.players.length) return null;
-    return parsed;
-  } catch {
-    return null;
-  }
-}
+    function populateCourseSelect() {
+      courseSelect.innerHTML = "";
+      Object.entries(COURSES).forEach(([id, c]) => {
+        const opt = document.createElement("option");
+        opt.value = id;
+        opt.textContent = c.name;
+        if (id === activeCourseId) opt.selected = true;
+        courseSelect.appendChild(opt);
+      });
+    }
 
-function saveState(){
-  localStorage.setItem(storageKey(), JSON.stringify(state));
-}
+    courseSelect.addEventListener("change", () => {
+      saveState();
 
+      activeCourseId = courseSelect.value;
+      localStorage.setItem("activeCourseId", activeCourseId);
 
-// Utilities
-function haptic(){
-  try{ if (navigator.vibrate) navigator.vibrate(10); } catch {}
-}
-function escapeHtml(str){
-  return String(str).replace(/[&<>"']/g, m => ({
-    "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
-  }[m]));
-}
-function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
-function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+      holes = COURSES[activeCourseId].holes;
+      state = loadState() || freshState();
 
-populateCourseSelect();
-render();
+      render();
+    });
 
-</script>
+    // Render
+    function render(){
+      renderView();
+      renderTotals();
+      renderHoles();
+      renderRing();
+      renderSummary();
+      kickAnimations();
+    }
+
+    function renderView(){
+      const isCards = state.activeView !== "summary";
+      viewCards.style.display = isCards ? "" : "none";
+      viewSummary.style.display = isCards ? "none" : "";
+      tabCards.classList.toggle("active", isCards);
+      tabSummary.classList.toggle("active", !isCards);
+    }
+
+    function renderTotals(){
+      totalsPlayers.innerHTML = "";
+      state.players.forEach((name, pIdx) => {
+        const total = totalStrokes(pIdx);
+        const toPar = totalToPar(pIdx);
+        const out = sumRange(pIdx, 0, 8);
+        const inn = sumRange(pIdx, 9, 17);
+
+        const row = document.createElement("div");
+        row.className = "player-row";
+
+        const nameEl = document.createElement("div");
+        nameEl.className = "player-name editable";
+        nameEl.innerHTML = `<span>${escapeHtml(name)}</span><span class="pencil">✎</span>`;
+        nameEl.title = "Tap to edit name";
+        nameEl.addEventListener("click", () => openSheet({ type:"name", playerIndex: pIdx }));
+
+        const chips = document.createElement("div");
+        chips.className = "chips";
+        chips.appendChild(chip("Total", total));
+        chips.appendChild(chip("To Par", formatToPar(toPar)));
+        chips.appendChild(chip("OUT", out));
+        chips.appendChild(chip("IN", inn));
+
+        row.appendChild(nameEl);
+        row.appendChild(chips);
+        totalsPlayers.appendChild(row);
+      });
+    }
+
+    function renderHoles(){
+      carousel.innerHTML = "";
+      holes.forEach((h, hIdx) => {
+        const card = document.createElement("section");
+        card.className = "card hole-card";
+
+        const inner = document.createElement("div");
+        inner.className = "card-inner";
+        inner.innerHTML = `
+          <p class="hole-num">Hole ${h.n}</p>
+          <div class="hole-sub">Par ${h.par} · ${h.yards} yds</div>
+
+          <div class="metric-row">
+            ${metric("Par", h.par)}
+            ${metric("Yards", h.yards)}
+          </div>
+
+          <div class="divider"></div>
+          <div id="scores-${hIdx}"></div>
+        `;
+
+        card.appendChild(inner);
+        carousel.appendChild(card);
+
+        const scoresWrap = inner.querySelector(`#scores-${hIdx}`);
+
+        state.players.forEach((name, pIdx) => {
+          const row = document.createElement("div");
+          row.className = "score-row";
+
+          const left = document.createElement("div");
+          left.className = "player-name editable";
+          left.innerHTML = `<span>${escapeHtml(name)}</span><span class="pencil">✎</span>`;
+          left.title = "Tap to edit name";
+          left.addEventListener("click", () => openSheet({ type:"name", playerIndex: pIdx }));
+
+          const controls = document.createElement("div");
+          controls.className = "score-controls";
+
+          const minus = document.createElement("div");
+          minus.className = "btn";
+          minus.textContent = "–";
+          minus.addEventListener("click", () => {
+            const cur = state.scores[pIdx][hIdx] ?? 0;
+            setScore(pIdx, hIdx, Math.max(0, cur - 1));
+            saveState(); render(); haptic();
+          });
+
+          const score = document.createElement("div");
+          score.className = "score";
+          score.dataset.key = `${pIdx}-${hIdx}`;
+
+          const v = state.scores[pIdx][hIdx];
+          const par = holes[hIdx].par;
+          const display = (v ?? 0);
+
+          if (v !== null) {
+            const markClass = markClassForScore(v, par);
+            if (markClass) {
+              score.innerHTML = `<span class="hole-mark cards ${markClass}">${display}</span>`;
+            } else {
+              score.textContent = String(display);
+            }
+          } else {
+            score.textContent = String(display);
+          }
+
+          const plus = document.createElement("div");
+          plus.className = "btn plus";
+          plus.textContent = "+";
+          plus.addEventListener("click", () => {
+            const cur = state.scores[pIdx][hIdx] ?? 0;
+            setScore(pIdx, hIdx, cur + 1);
+            saveState(); render(); haptic();
+          });
+
+          controls.appendChild(minus);
+          controls.appendChild(score);
+          controls.appendChild(plus);
+
+          row.appendChild(left);
+          row.appendChild(controls);
+          scoresWrap.appendChild(row);
+        });
+      });
+    }
+
+    function renderRing(){
+      const completed = holesCompletedCount();
+      const pct = Math.round((completed/18)*100);
+      ringPct.textContent = pct + "%";
+
+      const filled = (pct/100) * RING_C;
+      ringArc.setAttribute("stroke-dasharray", `${filled} ${RING_C}`);
+
+      const thruEl = document.getElementById("thruHoles");
+      if (thruEl) {
+        if (completed === 0) thruEl.textContent = "Thru 0 Holes";
+        else if (completed === 1) thruEl.textContent = "Thru 1 Hole";
+        else thruEl.textContent = `Thru ${completed} Holes`;
+      }
+    }
+
+    /** Summary (tap-to-edit) + marks */
+    function renderSummary() {
+      const headers = ["Player", ...holes.map(h => String(h.n)), "OUT", "IN", "Total", "To Par"];
+
+      let html = "<thead><tr>";
+      for (const h of headers) html += `<th>${escapeHtml(h)}</th>`;
+      html += "</tr></thead><tbody>";
+
+      state.players.forEach((name, pIdx) => {
+        html += "<tr>";
+
+        html += `
+          <td class="tap-cell" data-type="name" data-player="${pIdx}">
+            <span class="editable">
+              <span>${escapeHtml(name)}</span> <span class="pencil">✎</span>
+            </span>
+          </td>
+        `;
+
+        for (let i = 0; i < 18; i++) {
+          const v = state.scores[pIdx][i];
+          const par = holes[i].par;
+
+          const markClass = (v === null) ? "" : markClassForScore(v, par);
+          const cellContent = (v === null)
+            ? "—"
+            : `<span class="hole-mark ${markClass}">${v}</span>`;
+
+          html += `
+            <td class="tap-cell"
+                data-type="score"
+                data-player="${pIdx}"
+                data-hole="${i}">
+              ${cellContent}
+            </td>
+          `;
+        }
+
+        const out = sumRange(pIdx, 0, 8);
+        const inn = sumRange(pIdx, 9, 17);
+        const total = totalStrokes(pIdx);
+
+        const outTP = toParRange(pIdx, 0, 8);
+        const inTP  = toParRange(pIdx, 9, 17);
+        const totTP = totalToPar(pIdx);
+
+        const outCls = sumClassForToPar(outTP);
+        const inCls  = sumClassForToPar(inTP);
+        const totCls = sumClassForToPar(totTP);
+
+        html += `
+          <td class="${outCls}">${out}</td>
+          <td class="${inCls}">${inn}</td>
+          <td class="${totCls}">${total}</td>
+          <td class="${totCls}">${formatToPar(totTP)}</td>
+        `;
+
+        html += "</tr>";
+      });
+
+      const parOut = holes.slice(0, 9).reduce((s, h) => s + h.par, 0);
+      const parIn  = holes.slice(9, 18).reduce((s, h) => s + h.par, 0);
+      const parTot = holes.reduce((s, h) => s + h.par, 0);
+
+      html += `
+        <tr class="totrow">
+          <td>Par</td>
+          ${holes.map(h => `<td>${h.par}</td>`).join("")}
+          <td>${parOut}</td>
+          <td>${parIn}</td>
+          <td>${parTot}</td>
+          <td>E</td>
+        </tr>
+      `;
+
+      html += "</tbody>";
+      summaryTable.innerHTML = html;
+
+      summaryTable.querySelectorAll(".tap-cell").forEach(td => {
+        td.addEventListener("click", () => {
+          const type = td.getAttribute("data-type");
+          const p = Number(td.getAttribute("data-player"));
+
+          if (type === "name") {
+            openSheet({ type: "name", playerIndex: p });
+            return;
+          }
+
+          const h = Number(td.getAttribute("data-hole"));
+          openSheet({ type: "score", playerIndex: p, holeIndex: h });
+        });
+      });
+    }
+
+    // Animation loop (count-up + pop) + marks
+    let animRaf = null;
+    function kickAnimations(){
+      if (animRaf) cancelAnimationFrame(animRaf);
+      if (animMap.size === 0) return;
+      animRaf = requestAnimationFrame(stepAnims);
+    }
+
+    function stepAnims(now){
+      const nodes = document.querySelectorAll(".score[data-key]");
+      const nodeByKey = new Map();
+      nodes.forEach(n => nodeByKey.set(n.dataset.key, n));
+
+      let still = 0;
+
+      for (const [key, a] of animMap.entries()){
+        const node = nodeByKey.get(key);
+        if (!node) { animMap.delete(key); continue; }
+
+        const t = clamp((now - a.start) / a.dur, 0, 1);
+        const eased = easeOutCubic(t);
+        const value = Math.round(a.from + (a.to - a.from) * eased);
+
+        const [, hStr] = node.dataset.key.split("-");
+        const hIdx = Number(hStr);
+        const par = holes[hIdx].par;
+
+        const markClass = markClassForScore(value, par);
+        if (markClass) node.innerHTML = `<span class="hole-mark cards ${markClass}">${value}</span>`;
+        else node.textContent = String(value);
+
+        node.classList.add("pop");
+
+        if (t >= 1){
+          setTimeout(() => node.classList.remove("pop"), 120);
+          animMap.delete(key);
+        } else {
+          still++;
+        }
+      }
+
+      if (still > 0){
+        animRaf = requestAnimationFrame(stepAnims);
+      } else {
+        animRaf = null;
+      }
+    }
+
+    // UI bits
+    function chip(label, value){
+      const el = document.createElement("div");
+      el.className = "chip";
+      el.innerHTML = `<div class="lbl">${escapeHtml(label)}</div><div class="val">${escapeHtml(String(value))}</div>`;
+      return el;
+    }
+    function metric(label, value){
+      return `<div class="metric"><div class="lbl">${escapeHtml(label)}</div><div class="val">${escapeHtml(String(value))}</div></div>`;
+    }
+
+    // Scoring helpers
+    function totalStrokes(pIdx){
+      return state.scores[pIdx].reduce((sum, v) => sum + (v ?? 0), 0);
+    }
+    function totalToPar(pIdx){
+      let tp = 0;
+      for (let i=0; i<18; i++){
+        const s = state.scores[pIdx][i];
+        if (s !== null) tp += (s - holes[i].par);
+      }
+      return tp;
+    }
+    function sumRange(pIdx, start, end){
+      let s = 0;
+      for (let i=start; i<=end; i++){
+        s += (state.scores[pIdx][i] ?? 0);
+      }
+      return s;
+    }
+    function formatToPar(v){
+      if (v === 0) return "E";
+      return v > 0 ? `+${v}` : `${v}`;
+    }
+
+    // Storage
+    function loadState(){
+      try{
+        const raw = localStorage.getItem(storageKey());
+        if (!raw) return null;
+        const parsed = JSON.parse(raw);
+        if (!parsed.players || !parsed.scores) return null;
+        if (!Array.isArray(parsed.players) || !Array.isArray(parsed.scores)) return null;
+        if (parsed.scores.length !== parsed.players.length) return null;
+        return parsed;
+      } catch {
+        return null;
+      }
+    }
+
+    function saveState(){
+      localStorage.setItem(storageKey(), JSON.stringify(state));
+    }
+
+    // Utilities
+    function haptic(){
+      try{ if (navigator.vibrate) navigator.vibrate(10); } catch {}
+    }
+    function escapeHtml(str){
+      return String(str).replace(/[&<>"']/g, m => ({
+        "&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#039;"
+      }[m]));
+    }
+    function clamp(x,a,b){ return Math.max(a, Math.min(b, x)); }
+    function easeOutCubic(t){ return 1 - Math.pow(1 - t, 3); }
+
+    // Init
+    populateCourseSelect();
+    render();
+  </script>
 </body>
 </html>
