@@ -1,4 +1,4 @@
-const CACHE = "oaks-scorecard-v31";
+const CACHE = "oaks-scorecard-v32";
 const ASSETS = [
   "./",
   "./index.html",
